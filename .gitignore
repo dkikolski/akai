@@ -1,0 +1,76 @@
+*.DS_Store
+*.class
+*.tasty
+*.log
+*.swp
+*~
+tags
+
+# sbt specific
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+project/local-plugins.sbt
+.history
+.ensime
+.ensime_cache/
+.sbt-scripted/
+local.sbt
+
+# VS Code
+.vscode/
+# Metals
+.bloop/
+.metals/
+metals.sbt
+
+# Scala-IDE specific
+.scala_dependencies
+.cache
+.cache-main
+.cache-tests
+.classpath
+.project
+.settings
+classes/
+*/bin/
+
+# Dotty IDE
+/.dotty-ide-dev-port
+/.dotty-ide-artifact
+/.dotty-ide.json
+
+# idea
+.idea
+.idea_modules
+/.worksheet/
+
+# Ignore output files but keep the directory
+out/
+build/
+!out/.keep
+testlogs/
+
+# Ignore build-file
+.packages
+/.cache-main
+/.cache-tests
+
+# Bloop
+.bsp
+
+# Coursier
+cs
+
+# Coursier test product
+compiler/test-coursier/run/*.jar
+
+# Docs
+docs-for-dotty-page/*
+
+# docs.scala-lang deplyment temp dir
+docsScalaLang/
+docs/_site/
