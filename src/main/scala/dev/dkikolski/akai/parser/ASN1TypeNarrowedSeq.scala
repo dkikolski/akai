@@ -7,7 +7,7 @@ import org.bouncycastle.asn1.ASN1Integer
 import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
 
-import ASN1TypesConversions._
+import ASN1TypeConversions._
 
 private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
   def tryGetBooleanAt(index: Int): Either[ParsingFailure, Boolean] =

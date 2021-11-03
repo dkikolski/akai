@@ -1,6 +1,6 @@
 package dev.dkikolski.akai.schema
 
-case class KeyDescription(
+final case class KeyDescription(
     val attestationVersion: Int,
     val attestationSecurityLevel: SecurityLevel,
     val keymasterVersion: Int,

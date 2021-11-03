@@ -8,8 +8,7 @@ import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Private
 import org.bouncycastle.asn1.ASN1Primitive
 
-// TODO: refactor to package object?
-private[parser] object ASN1TypesConversions {
+private[parser] object ASN1TypeConversions {
 
   def convertToInt(encodable: ASN1Encodable): Either[ParsingFailure, Int] =
     encodable match {

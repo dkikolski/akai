@@ -3,7 +3,7 @@ package dev.dkikolski.akai.schema
 import java.time.Instant
 import java.time.Duration
 
-case class AuthorizationList(
+final case class AuthorizationList(
     val purpose: Set[Int],
     val algorithm: Option[Int],
     val keySize: Option[Int],
