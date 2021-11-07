@@ -12,6 +12,7 @@ import dev.dkikolski.akai.schema.SecurityLevel
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
+import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -24,6 +25,7 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 import scala.util.Using
+import dev.dkikolski.akai.io.CertificateReader
 
 @main def main(args: String*): Unit = {
   CommandLineArgsParser.parse(args) match {
@@ -35,21 +37,30 @@ import scala.util.Using
 
 // TODO: Handle IO operations in more functional way
 
-private def handleUnsupportedAction(action: Discard): Unit = println(action.reason)
+def handleUnsupportedAction(action: Discard): Unit = println(action.reason)
 
-private def handleShowHelp(action: ShowHelp): Unit = println(action.content)
+def handleShowHelp(action: ShowHelp): Unit = println(action.content)
 
-private def handleParsingCertificate(action: ParseCertificate): Unit = {
-  val parsingResult = for {
-    certificate <-
-      if (action.path.isDefined) CertificateParser.parse(File(action.path.get))
-      else CertificateParser.parse(Source.stdin.mkString.getBytes)
+def handleParsingCertificate(action: ParseCertificate): Unit = {
+  val certificateSource  = action.location.map(FileInputStream(_)).getOrElse(System.in)
+  val certificateBytesIn = CertificateReader.read(certificateSource)
+
+  val certificateParsingResult = for {
+    certificateBytes     <- decodeCertificateIfRequired(certificateBytesIn, action.decodeBase64)
+    certificate          <- CertificateParser.parse(certificateBytes)
     keyDescCertExtension <- CertificateParser.getKeyDescriptionExtension(certificate)
     parsedKeyDescription <- KeyDescriptionParser.parse(keyDescCertExtension)
   } yield parsedKeyDescription
 
-  parsingResult match {
+  certificateParsingResult match {
     case Right(keyDescription) => println(TablePrinter.render(keyDescription))
     case Left(failure)         => println(s"[ERROR] ${failure.getReason()}")
   }
+}
+
+def decodeCertificateIfRequired(
+    bytes: Array[Byte],
+    decodeBase64: Boolean
+): Either[ParsingFailure, Array[Byte]] = {
+  if (decodeBase64) CertificateParser.decodeBase64(bytes) else Right(bytes)
 }

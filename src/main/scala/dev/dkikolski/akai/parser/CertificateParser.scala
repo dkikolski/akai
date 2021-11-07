@@ -14,39 +14,28 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 import scala.util.Using
+import org.bouncycastle.util.encoders.Base64
+
+
+
 
 object CertificateParser {
   private val KeyDescriptionObjectId = "1.3.6.1.4.1.11129.2.1.17"
 
-  def parse(file: File): Either[ParsingFailure, X509Certificate] = {
-    Using(FileInputStream(file))(parse) match {
-      case Success(result) => result
-      case Failure(exception) =>
-        Left(CertificateParsingFailure(s"Parsing file failed: ${exception.getMessage()}"))
-    }
-  }
-
-  def parse(bytes: Array[Byte]): Either[ParsingFailure, X509Certificate] = {
-    Using(ByteArrayInputStream(bytes))(parse) match {
-      case Success(result) => result
-      case Failure(exception) =>
-        Left(
-          CertificateParsingFailure(
-            s"Parsing certificate from StdIn failed: ${exception.getMessage()}"
-          )
-        )
-    }
-  }
-
   // To be considered: Parse chain instead of single cert and verify it
-  private def parse(is: InputStream): Either[ParsingFailure, X509Certificate] = {
+  def parse(bytes: Array[Byte]): Either[ParsingFailure, X509Certificate] = {
     Try {
-      CertificateFactory.getInstance("X.509").generateCertificate(is).asInstanceOf[X509Certificate]
+      CertificateFactory
+        .getInstance("X.509")
+        .generateCertificate(ByteArrayInputStream(bytes))
+        .asInstanceOf[X509Certificate]
     } match {
       case Success(certificate) => Right(certificate)
       case Failure(exception) =>
         Left(
-          CertificateParsingFailure(s"Cannot generate X509 Certificate: ${exception.getMessage()}")
+          CertificateParsingFailure(
+            s"Cannot generate X509 Certificate: ${exception.getMessage()}"
+          )
         )
     }
   }
@@ -62,6 +51,20 @@ object CertificateParser {
           )
         )
       )
+  }
+
+  def decodeBase64(bytes: Array[Byte]): Either[ParsingFailure, Array[Byte]] = {
+    Try { 
+      Base64.decode(new String(bytes).replace("\\n", ""))
+    } match {
+      case Success(decodedBytes) => Right(decodedBytes)
+      case Failure(exception) =>
+        Left(
+          CertificateParsingFailure(
+            s"Cannot decode certificate with Base64: ${exception.getMessage}"
+          )
+        )
+    }
   }
 
   private def bytesToASN1Sequence(bytes: Array[Byte]): Either[ParsingFailure, ASN1Sequence] = {

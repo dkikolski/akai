@@ -4,6 +4,7 @@ import scala.annotation.tailrec
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
+import java.io.File
 
 object CommandLineArgsParser {
   private val HelpText =
@@ -11,14 +12,14 @@ object CommandLineArgsParser {
       |With no FILE, read standard input.
       | 
       |Options
-      |  --base64decode     decode the input using Base64 decoding scheme 
+      |  --decode-base64    decode the input using Base64 decoding scheme 
       |                     before parsing as a X509 certificate 
       |  
       |  --help             display this help message and exit
       |
     """.stripMargin
 
-  private val Base64DecodeOption = "--base64decode"
+  private val Base64DecodeOption = "--decode-base64"
   private val ShowHelpOption     = "--help"
 
   private val SupportedOptions = Set(ShowHelpOption, Base64DecodeOption)
@@ -37,8 +38,11 @@ object CommandLineArgsParser {
       Discard(
         s"Only single file/directory path is supported. Too many locations: ${locations.mkString(", ")}"
       )
-    else 
-      ParseCertificate(path = locations.headOption, decodeBase64 = options.contains(Base64DecodeOption))
+    else
+      ParseCertificate(
+        location = locations.headOption.map(File(_)),
+        decodeBase64 = options.contains(Base64DecodeOption)
+      )
   }
 
   @tailrec
