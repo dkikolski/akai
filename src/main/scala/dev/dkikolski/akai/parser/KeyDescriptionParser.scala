@@ -50,14 +50,14 @@ object KeyDescriptionParser {
   def parse(asn1Seq: ASN1Sequence): Either[ParsingFailure, KeyDescription] = {
     val seq = ASN1TypeNarrowedSeq(asn1Seq)
     for {
-      attestationVersion   <- seq.tryGgetIntAt(0)
-      attestationSecLvl    <- seq.tryGgetIntAt(1).map(SecurityLevel.fromInt)
-      keyMasterVersion     <- seq.tryGgetIntAt(2)
-      keyMasterSecLvl      <- seq.tryGgetIntAt(3).map(SecurityLevel.fromInt)
-      attestationChallenge <- seq.tryGetStringAt(4)
-      uniqueId             <- seq.tryGetStringAt(5)
-      softwareEnforced     <- seq.tryGetTaggedValuesAt(6).flatMap(parseAuthorizationList)
-      teeEnforced          <- seq.tryGetTaggedValuesAt(7).flatMap(parseAuthorizationList)
+      attestationVersion   <- seq.parseIntAt(0)
+      attestationSecLvl    <- seq.parseIntAt(1).map(SecurityLevel.fromInt)
+      keyMasterVersion     <- seq.parseIntAt(2)
+      keyMasterSecLvl      <- seq.parseIntAt(3).map(SecurityLevel.fromInt)
+      attestationChallenge <- seq.parseBytesAt(4)
+      uniqueId             <- seq.parseBytesAt(5)
+      softwareEnforced     <- seq.parseTaggedObjectsAt(6).flatMap(parseAuthorizationList)
+      teeEnforced          <- seq.parseTaggedObjectsAt(7).flatMap(parseAuthorizationList)
 
       keyDescription = KeyDescription(
         attestationVersion,
@@ -171,10 +171,10 @@ object KeyDescriptionParser {
       tseq: ASN1TypeNarrowedSeq
   ): Either[ParsingFailure, Option[RootOfTrust]] = {
     for {
-      veryfiedBootKey   <- tseq.tryGetBytesAt(0)
-      deviceLocked      <- tseq.tryGetBooleanAt(1)
-      verifiedBootState <- tseq.tryGgetIntAt(2).map(VerifiedBootState.fromInt)
-      verifiedBootHash  <- tseq.tryGetBytesOrEmptyAt(3)
+      veryfiedBootKey   <- tseq.parseBytesAt(0)
+      deviceLocked      <- tseq.parseBooleanAt(1)
+      verifiedBootState <- tseq.parseIntAt(2).map(VerifiedBootState.fromInt)
+      verifiedBootHash  <- tseq.parseBytesOrEmptyAt(3)
     } yield Some(RootOfTrust(veryfiedBootKey, deviceLocked, verifiedBootState, verifiedBootHash))
   }
 }

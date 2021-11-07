@@ -5,8 +5,8 @@ final case class KeyDescription(
     val attestationSecurityLevel: SecurityLevel,
     val keymasterVersion: Int,
     val keymasterSecurityLevel: SecurityLevel,
-    val attestationChallenge: String,
-    val uniqueId: String,
+    val attestationChallenge: Array[Byte],
+    val uniqueId: Array[Byte],
     val softwareEnforced: AuthorizationList, 
     val teeEnforced: AuthorizationList
 )

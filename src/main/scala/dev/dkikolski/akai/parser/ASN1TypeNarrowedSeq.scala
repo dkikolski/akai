@@ -10,24 +10,24 @@ import org.bouncycastle.asn1.ASN1Sequence
 import ASN1TypeConversions._
 
 private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
-  def tryGetBooleanAt(index: Int): Either[ParsingFailure, Boolean] =
+  def parseBooleanAt(index: Int): Either[ParsingFailure, Boolean] =
     getAt(index).flatMap(convertToBoolean)
 
-  def tryGgetIntAt(index: Int): Either[ParsingFailure, Int] =
+  def parseIntAt(index: Int): Either[ParsingFailure, Int] =
     getAt(index).flatMap(convertToInt)
 
-  def tryGetStringAt(index: Int): Either[ParsingFailure, String] =
+  def parseStringAt(index: Int): Either[ParsingFailure, String] =
     getAt(index).flatMap(convertToString)
 
-  def tryGetTaggedValuesAt(index: Int): Either[ParsingFailure, ASN1TypeNarrowedTaggedObjects] =
+  def parseTaggedObjectsAt(index: Int): Either[ParsingFailure, ASN1TypeNarrowedTaggedObjects] =
     getAt(index).map(_.asInstanceOf[ASN1Sequence]).map(ASN1TypeNarrowedTaggedObjects(_)) //TODO: make it a safe cast
 
-  def tryGetBytesAt(index: Int): Either[ParsingFailure, Array[Byte]] =
+  def parseBytesAt(index: Int): Either[ParsingFailure, Array[Byte]] =
     getAt(index).map(_.asInstanceOf[ASN1OctetString]).map(_.getOctets) //TODO: make it a safe cast
 
-  def tryGetBytesOrEmptyAt(index: Int): Either[ParsingFailure, Array[Byte]] =
+  def parseBytesOrEmptyAt(index: Int): Either[ParsingFailure, Array[Byte]] =
     if (seq.size() > index) Right(Array.emptyByteArray)
-    else tryGetBytesAt(index)
+    else parseBytesAt(index)
 
   private[this] def convertToASN1Sequence(
       encodable: ASN1Encodable

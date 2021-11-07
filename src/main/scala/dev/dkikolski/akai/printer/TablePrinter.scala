@@ -11,11 +11,15 @@ object TablePrinter {
   private val ColumnWidth = 36
 
   def render(kd: KeyDescription): String = {
-    def extractSingle(extractFun: KeyDescription => Any): (String, String) =
-      (extractFun(kd).toString, "")
+    
+    def extractSingle[A](
+        extractFun: KeyDescription => A,
+        toStr: A => String = (a: A) => a.toString
+    ): (String, String) =
+      (toStr(extractFun(kd)), "")
 
     def extractBoth[A](
-        extractFun: AuthorizationList => A, 
+        extractFun: AuthorizationList => A,
         toStr: A => String = (a: A) => a.toString
     ): (String, String) =
       (toStr(extractFun(kd.softwareEnforced)), toStr(extractFun(kd.teeEnforced)))
@@ -35,8 +39,8 @@ object TablePrinter {
       "Attestation Security Level" -> extractSingle(_.attestationSecurityLevel),
       "Keymaster Version"          -> extractSingle(_.keymasterVersion),
       "Keymaster Security Level"   -> extractSingle(_.keymasterSecurityLevel),
-      "Attestation Challenge"      -> extractSingle(_.attestationChallenge),
-      "Unique ID"                  -> extractSingle(_.uniqueId)
+      "Attestation Challenge"      -> extractSingle(_.attestationChallenge, bytesToHex),
+      "Unique ID"                  -> extractSingle(_.uniqueId, bytesToHex)
     )
 
     val authorizationList: Seq[(String, (String, String))] = Seq(
