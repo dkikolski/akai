@@ -15,21 +15,19 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(private val taggedValu
   def getIntSet(tag: Int): Either[ParsingFailure, Set[Int]] =
     taggedValues
       .get(tag)
-      .map(_.asInstanceOf[ASN1Set]) // todo: make it safe 
-      .map(_.toArray)
       .map(parseToIntSet)
       .getOrElse(Right(Set.empty))
 
   def getInt(tag: Int): Either[ParsingFailure, Option[Int]] =
     taggedValues
       .get(tag)
-      .map(it => convertToInt(it).map(Some(_)))
+      .map(convertToInt(_).map(Some(_)))
       .getOrElse(Right(None))
 
   def getLong(tag: Int): Either[ParsingFailure, Option[Long]] =
     taggedValues
       .get(tag)
-      .map(it => convertToLong(it).map(Some(_)))
+      .map(convertToLong(_).map(Some(_)))
       .getOrElse(Right(None))
 
   def getBoolean(tag: Int): Boolean = taggedValues.get(tag).isDefined
@@ -37,34 +35,48 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(private val taggedValu
   def getInstant(tag: Int): Either[ParsingFailure, Option[Instant]] =
     taggedValues
       .get(tag)
-      .map(it => parseToInstant(it).map(Some(_)))
+      .map(parseToInstant(_).map(Some(_)))
       .getOrElse(Right(None))
 
   def getDuration(tag: Int): Either[ParsingFailure, Option[Duration]] =
     taggedValues
       .get(tag)
-      .map(it => parseToDurationFromSeconds(it).map(Some(_)))
+      .map(parseToDurationFromSeconds(_).map(Some(_)))
       .getOrElse(Right(None))
 
   def getBytes(tag: Int): Either[ParsingFailure, Array[Byte]] = 
     taggedValues
     .get(tag)
-    .map(it => convertToBytes(it))
+    .map(convertToBytes)
     .getOrElse(Right(Array.emptyByteArray))
 
   def getASN1TypeNarrowedSeq(tag: Int): Either[ParsingFailure, Option[ASN1TypeNarrowedSeq]] = 
     taggedValues
     .get(tag)
-    .map(it => Right(Some(it.asInstanceOf[ASN1Sequence]).map(ASN1TypeNarrowedSeq(_)))) // TODO: Fix unsafe conversion
+    .map(parseAsASN1TypeNarrowedSeq(_).map(Some(_))) 
     .getOrElse(Right(None))
 
-  private def parseToInstant(primitive: ASN1Primitive): Either[ParsingFailure, Instant] = 
+  private[this] def parseToInstant(primitive: ASN1Primitive): Either[ParsingFailure, Instant] = 
     convertToLong(primitive).map(Instant.ofEpochMilli)
 
-  private def parseToDurationFromSeconds(primitive: ASN1Primitive): Either[ParsingFailure, Duration] = 
+  private[this] def parseToDurationFromSeconds(primitive: ASN1Primitive): Either[ParsingFailure, Duration] = 
     convertToLong(primitive).map(Duration.ofSeconds)
 
-  private def parseToIntSet(encodables: Array[ASN1Encodable]): Either[ParsingFailure, Set[Int]] =
+  private[this] def parseAsASN1TypeNarrowedSeq(primitive: ASN1Primitive): Either[ParsingFailure, ASN1TypeNarrowedSeq] = {
+    primitive match {
+      case seq: ASN1Sequence => Right(ASN1TypeNarrowedSeq(seq))
+      case other => Left(TypeMismatch(other, other.getClass, classOf[ASN1Sequence]))
+    }
+  }
+
+  private[this] def parseToIntSet(primitive: ASN1Primitive): Either[ParsingFailure, Set[Int]] = {
+    primitive match {
+      case set: ASN1Set => parseToIntSet(set.toArray)
+      case other => Left(TypeMismatch(other, other.getClass, classOf[ASN1Set]))
+    }
+  }
+
+  private[this] def parseToIntSet(encodables: Array[ASN1Encodable]): Either[ParsingFailure, Set[Int]] =
     encodables
       .map(ASN1TypeConversions.convertToInt)
       .foldRight(Right(Set.empty): Either[ParsingFailure, Set[Int]])((e, acc) => for (xs <- acc; x <- e) yield xs + x)

@@ -173,8 +173,15 @@ object KeyDescriptionParser {
     for {
       veryfiedBootKey   <- tseq.parseBytesAt(0)
       deviceLocked      <- tseq.parseBooleanAt(1)
-      verifiedBootState <- tseq.parseIntAt(2).map(VerifiedBootState.fromInt)
+      verifiedBootState <- tseq.parseIntAt(2).flatMap(parseVerifiedBootState)
       verifiedBootHash  <- tseq.parseBytesOrEmptyAt(3)
     } yield Some(RootOfTrust(veryfiedBootKey, deviceLocked, verifiedBootState, verifiedBootHash))
+  }
+
+  private def parseVerifiedBootState(i: Int): Either[ParsingFailure, VerifiedBootState] = {
+    VerifiedBootState.values
+      .find(_.intValue == i)
+      .map(Right(_))
+      .getOrElse(Left(UnmatchedEnumeration(i, "VerifiedBootState")))
   }
 }

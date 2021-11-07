@@ -10,6 +10,7 @@ import org.bouncycastle.asn1.ASN1Sequence
 import ASN1TypeConversions._
 
 private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
+
   def parseBooleanAt(index: Int): Either[ParsingFailure, Boolean] =
     getAt(index).flatMap(convertToBoolean)
 
@@ -20,10 +21,14 @@ private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
     getAt(index).flatMap(convertToString)
 
   def parseTaggedObjectsAt(index: Int): Either[ParsingFailure, ASN1TypeNarrowedTaggedObjects] =
-    getAt(index).map(_.asInstanceOf[ASN1Sequence]).map(ASN1TypeNarrowedTaggedObjects(_)) //TODO: make it a safe cast
+    getAt(index)
+      .flatMap(convertToASN1Sequence)
+      .map(ASN1TypeNarrowedTaggedObjects(_))
 
   def parseBytesAt(index: Int): Either[ParsingFailure, Array[Byte]] =
-    getAt(index).map(_.asInstanceOf[ASN1OctetString]).map(_.getOctets) //TODO: make it a safe cast
+    getAt(index)
+      .flatMap(convertToASN1OctetString)
+      .map(_.getOctets)
 
   def parseBytesOrEmptyAt(index: Int): Either[ParsingFailure, Array[Byte]] =
     if (seq.size() > index) Right(Array.emptyByteArray)
@@ -35,6 +40,14 @@ private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
     encodable match {
       case seq: ASN1Sequence => Right(seq)
       case other             => Left(TypeMismatch(other, other.getClass, classOf[ASN1Sequence]))
+    }
+
+  private[this] def convertToASN1OctetString(
+      encodable: ASN1Encodable
+  ): Either[ParsingFailure, ASN1OctetString] =
+    encodable match {
+      case octets: ASN1OctetString => Right(octets)
+      case other => Left(TypeMismatch(other, other.getClass, classOf[ASN1OctetString]))
     }
 
   private[this] def getAt(index: Int): Either[ParsingFailure, ASN1Encodable] = {

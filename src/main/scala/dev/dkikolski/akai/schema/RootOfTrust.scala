@@ -13,7 +13,3 @@ enum VerifiedBootState(val intValue: Int) {
   case Unverified extends VerifiedBootState(2)
   case Failed extends VerifiedBootState(3)
 }
-
-object VerifiedBootState {
-  def fromInt(i: Int): VerifiedBootState = VerifiedBootState.values.find(_.intValue == i).get // TODO: fix unsafe get
-}
