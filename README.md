@@ -1,5 +1,4 @@
 ## AKAI - Android Key Attestation Info
----
 
 Akai is an utility application written for extracting properties of device's hardware-backed keys from attestation certificate's extension data.
 
@@ -9,10 +8,8 @@ Program is inspired by Google's server sample: https://github.com/google/android
 
 Android documentation describing hardware-backed key pair verification: https://developer.android.com/training/articles/security-key-attestation
 
-<br />
 
 ## Build
----
 
 #### Prerequisites
 
@@ -39,17 +36,14 @@ sbt assembly
 sbt graalvm-native-image:packageBin
 ```
 
-<br />
 
 ## Install
----
+
 Chose the convinient location (e.g. your own home directory) and copy there the build artifact (jar or native image). Add it to your system environment variable `PATH`, if it is not already there.
 
 
-<br />
-
 ## Run
----
+
 Akai reads certificate from the file or from the standard input. In case, when file location is not provided, standard input is a default source of data. 
 Result with key description is printed to standard output.
 
