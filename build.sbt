@@ -18,3 +18,11 @@ ThisBuild / libraryDependencies ++= Seq(
   "org.scalactic"   %% "scalactic"      % "3.2.10",
   "org.scalatest"   %% "scalatest"      % "3.2.10" % "test"
 )
+
+graalVMNativeImageOptions := Seq(
+  "--verbose",
+  "--no-fallback",
+  "--static"
+)
+
+enablePlugins(GraalVMNativeImagePlugin)
