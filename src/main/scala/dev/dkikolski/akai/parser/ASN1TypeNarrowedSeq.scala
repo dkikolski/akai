@@ -39,7 +39,7 @@ private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
   ): Either[ParsingFailure, ASN1Sequence] =
     encodable match {
       case seq: ASN1Sequence => Right(seq)
-      case other             => Left(TypeMismatch(other, other.getClass, classOf[ASN1Sequence]))
+      case other             => Left(TypeMismatch(other, "ASN1Sequence"))
     }
 
   private[this] def convertToASN1OctetString(
@@ -47,7 +47,7 @@ private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
   ): Either[ParsingFailure, ASN1OctetString] =
     encodable match {
       case octets: ASN1OctetString => Right(octets)
-      case other => Left(TypeMismatch(other, other.getClass, classOf[ASN1OctetString]))
+      case other => Left(TypeMismatch(other, "ASN1OctetString"))
     }
 
   private[this] def getAt(index: Int): Either[ParsingFailure, ASN1Encodable] = {

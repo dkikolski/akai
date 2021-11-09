@@ -11,40 +11,37 @@ import org.bouncycastle.asn1.ASN1Primitive
 private[parser] object ASN1TypeConversions {
 
   def convertToInt(encodable: ASN1Encodable): Either[ParsingFailure, Int] =
-    encodable match {
-      case i: ASN1Integer    => Right(convertToInt(i))
-      case e: ASN1Enumerated => Right(convertToInt(e))
-      case anyOther          => Left(TypeMismatch(anyOther, encodable.getClass, Int.getClass))
-    }
+    convertToInt(encodable.toASN1Primitive)
 
   def convertToInt(primitive: ASN1Primitive): Either[ParsingFailure, Int] =
     primitive match {
-      case i: ASN1Integer => Right(convertToInt(i))
-      case other          => Left(TypeMismatch(other, primitive.getClass, Int.getClass))
+      case i: ASN1Integer    => Right(convertToInt(i))
+      case e: ASN1Enumerated => Right(convertToInt(e))
+      case other             => Left(TypeMismatch(other, "Int"))
     }
 
   def convertToLong(primitive: ASN1Primitive): Either[ParsingFailure, Long] =
     primitive match {
       case i: ASN1Integer => Right(convertToLong(i))
-      case other          => Left(TypeMismatch(other, primitive.getClass, Long.getClass))
+      case other          => Left(TypeMismatch(other, "Long"))
     }
 
   def convertToBoolean(encodable: ASN1Encodable): Either[ParsingFailure, Boolean] =
     encodable match {
       case b: ASN1Boolean => Right(convertToBoolean(b))
-      case anyOther       => Left(TypeMismatch(anyOther, encodable.getClass, Boolean.getClass))
+      case other          => Left(TypeMismatch(other, "Boolean"))
     }
 
   def convertToString(encodable: ASN1Encodable): Either[ParsingFailure, String] =
     encodable match {
       case s: ASN1OctetString => Right(convertToString(s))
-      case anyOther           => Left(TypeMismatch(anyOther, encodable.getClass, classOf[String]))
+      case other              => Left(TypeMismatch(other, "String"))
     }
 
   def convertToBytes(primitive: ASN1Primitive): Either[ParsingFailure, Array[Byte]] =
     primitive match {
       case s: ASN1OctetString => Right(s.getOctets)
-      case other              => Left(TypeMismatch(other, primitive.getClass, classOf[Array[Byte]]))
+      case other              => Left(TypeMismatch(other, "Array[Byte]"))
     }
 
   private[this] def convertToInt(enumerated: ASN1Enumerated): Int =

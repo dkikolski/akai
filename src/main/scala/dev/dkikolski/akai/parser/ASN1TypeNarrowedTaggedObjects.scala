@@ -11,7 +11,9 @@ import java.time.Instant
 
 import ASN1TypeConversions._
 
-private[parser] final class ASN1TypeNarrowedTaggedObjects(private val taggedValues: Map[Int, ASN1Primitive]) {
+private[parser] final class ASN1TypeNarrowedTaggedObjects(
+    private val taggedValues: Map[Int, ASN1Primitive]
+) {
   def getIntSet(tag: Int): Either[ParsingFailure, Set[Int]] =
     taggedValues
       .get(tag)
@@ -44,42 +46,50 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(private val taggedValu
       .map(parseToDurationFromSeconds(_).map(Some(_)))
       .getOrElse(Right(None))
 
-  def getBytes(tag: Int): Either[ParsingFailure, Array[Byte]] = 
+  def getBytes(tag: Int): Either[ParsingFailure, Array[Byte]] =
     taggedValues
-    .get(tag)
-    .map(convertToBytes)
-    .getOrElse(Right(Array.emptyByteArray))
+      .get(tag)
+      .map(convertToBytes)
+      .getOrElse(Right(Array.emptyByteArray))
 
-  def getASN1TypeNarrowedSeq(tag: Int): Either[ParsingFailure, Option[ASN1TypeNarrowedSeq]] = 
+  def getASN1TypeNarrowedSeq(tag: Int): Either[ParsingFailure, Option[ASN1TypeNarrowedSeq]] =
     taggedValues
-    .get(tag)
-    .map(parseAsASN1TypeNarrowedSeq(_).map(Some(_))) 
-    .getOrElse(Right(None))
+      .get(tag)
+      .map(parseAsASN1TypeNarrowedSeq(_).map(Some(_)))
+      .getOrElse(Right(None))
 
-  private[this] def parseToInstant(primitive: ASN1Primitive): Either[ParsingFailure, Instant] = 
+  private[this] def parseToInstant(primitive: ASN1Primitive): Either[ParsingFailure, Instant] =
     convertToLong(primitive).map(Instant.ofEpochMilli)
 
-  private[this] def parseToDurationFromSeconds(primitive: ASN1Primitive): Either[ParsingFailure, Duration] = 
+  private[this] def parseToDurationFromSeconds(
+      primitive: ASN1Primitive
+  ): Either[ParsingFailure, Duration] =
     convertToLong(primitive).map(Duration.ofSeconds)
 
-  private[this] def parseAsASN1TypeNarrowedSeq(primitive: ASN1Primitive): Either[ParsingFailure, ASN1TypeNarrowedSeq] = {
+  private[this] def parseAsASN1TypeNarrowedSeq(
+      primitive: ASN1Primitive
+  ): Either[ParsingFailure, ASN1TypeNarrowedSeq] = {
     primitive match {
       case seq: ASN1Sequence => Right(ASN1TypeNarrowedSeq(seq))
-      case other => Left(TypeMismatch(other, other.getClass, classOf[ASN1Sequence]))
+      case other             => Left(TypeMismatch(other, "ASN1Sequence"))
     }
   }
 
   private[this] def parseToIntSet(primitive: ASN1Primitive): Either[ParsingFailure, Set[Int]] = {
     primitive match {
       case set: ASN1Set => parseToIntSet(set.toArray)
-      case other => Left(TypeMismatch(other, other.getClass, classOf[ASN1Set]))
+      case other        => Left(TypeMismatch(other, "ASN1Set"))
     }
   }
 
-  private[this] def parseToIntSet(encodables: Array[ASN1Encodable]): Either[ParsingFailure, Set[Int]] =
+  private[this] def parseToIntSet(
+      encodables: Array[ASN1Encodable]
+  ): Either[ParsingFailure, Set[Int]] =
     encodables
       .map(ASN1TypeConversions.convertToInt)
-      .foldRight(Right(Set.empty): Either[ParsingFailure, Set[Int]])((e, acc) => for (xs <- acc; x <- e) yield xs + x)
+      .foldRight(Right(Set.empty): Either[ParsingFailure, Set[Int]])((e, acc) =>
+        for (xs <- acc; x <- e) yield xs + x
+      )
 }
 
 object ASN1TypeNarrowedTaggedObjects {

@@ -10,11 +10,10 @@ final case class CertificateParsingFailure(reason: String) extends ParsingFailur
 
 final case class TypeMismatch(
     val value: Any,
-    val original: Class[?],
-    val expected: Class[?]
+    val expectedType: String
 ) extends ParsingFailure {
   override def getReason(): String =
-    s"$value of original type $original cannot be parsed as $expected"
+    s"Cannot parse $value as a/an $expectedType"
 }
 
 final case class OutOfSequenceRange(
