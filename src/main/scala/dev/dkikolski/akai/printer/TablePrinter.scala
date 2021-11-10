@@ -11,7 +11,7 @@ object TablePrinter {
   private val ColumnWidth = 36
 
   def render(kd: KeyDescription): String = {
-    
+
     def extractSingle[A](
         extractFun: KeyDescription => A,
         toStr: A => String = (a: A) => a.toString
@@ -99,13 +99,13 @@ object TablePrinter {
       .mkString("\n")
   }
 
-  private[this] def optionToString(o: Option[_]): String =
-    if (o.isEmpty) "<empty>"
-    else o.get.toString
+  private[this] def optionToString(option: Option[_]): String =
+    if (option.isEmpty) "<empty>"
+    else option.get.toString
 
-  private[this] def setToString(s: Set[_]): String =
-    if (s.isEmpty) "<empty>"
-    else s.mkString(", ")
+  private[this] def setToString(set: Set[_]): String =
+    if (set.isEmpty) "<empty>"
+    else set.mkString(", ")
 
   private[this] def bytesToString(bytes: Array[Byte]) =
     if (bytes.isEmpty) "<empty>"
@@ -115,8 +115,8 @@ object TablePrinter {
     if (bytes.isEmpty) "<empty>"
     else bytes.map(b => String.format("%02x", b)).mkString(" ")
 
-  private[this] def userAuthTypeToString(o: Option[Long]) =
-    optionToString(o.map(userAuthTypeFromLong).map(setToString))
+  private[this] def userAuthTypeToString(option: Option[Long]) =
+    optionToString(option.map(userAuthTypeFromLong).map(setToString))
 
   private[this] def headerRecord(
       a: String,

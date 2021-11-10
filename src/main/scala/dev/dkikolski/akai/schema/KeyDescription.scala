@@ -16,7 +16,3 @@ enum SecurityLevel(val intValue: Int) {
   case TrustedEnvironment extends SecurityLevel(1)
   case StrongBox extends SecurityLevel(2)
 }
-
-object SecurityLevel {
-  def fromInt(i: Int): SecurityLevel = SecurityLevel.fromOrdinal(i) 
-}

@@ -51,9 +51,9 @@ object KeyDescriptionParser {
     val seq = ASN1TypeNarrowedSeq(asn1Seq)
     for {
       attestationVersion   <- seq.parseIntAt(0)
-      attestationSecLvl    <- seq.parseIntAt(1).map(SecurityLevel.fromInt)
+      attestationSecLvl    <- seq.parseIntAt(1).flatMap(parseSecurityLevel)
       keyMasterVersion     <- seq.parseIntAt(2)
-      keyMasterSecLvl      <- seq.parseIntAt(3).map(SecurityLevel.fromInt)
+      keyMasterSecLvl      <- seq.parseIntAt(3).flatMap(parseSecurityLevel)
       attestationChallenge <- seq.parseBytesAt(4)
       uniqueId             <- seq.parseBytesAt(5)
       softwareEnforced     <- seq.parseTaggedObjectsAt(6).flatMap(parseAuthorizationList)
@@ -178,10 +178,20 @@ object KeyDescriptionParser {
     } yield Some(RootOfTrust(veryfiedBootKey, deviceLocked, verifiedBootState, verifiedBootHash))
   }
 
-  private def parseVerifiedBootState(i: Int): Either[ParsingFailure, VerifiedBootState] = {
-    VerifiedBootState.values
-      .find(_.intValue == i)
-      .map(Right(_))
-      .getOrElse(Left(UnmatchedEnumeration(i, "VerifiedBootState")))
-  }
+  private def parseVerifiedBootState(candidate: Int): Either[ParsingFailure, VerifiedBootState] = 
+    candidate match {
+      case 0 => Right(VerifiedBootState.Verified)
+      case 1 => Right(VerifiedBootState.SelfSigned) 
+      case 2 => Right(VerifiedBootState.Unverified)
+      case 3 => Right(VerifiedBootState.Failed)
+      case x => Left(UnmatchedEnumeration(x, "VerifiedBootState"))
+    }
+
+  private def parseSecurityLevel(candidate: Int): Either[ParsingFailure, SecurityLevel] = 
+    candidate match {
+      case 0 => Right(SecurityLevel.Software)
+      case 1 => Right(SecurityLevel.TrustedEnvironment)
+      case 2 => Right(SecurityLevel.StrongBox)
+      case x => Left(UnmatchedEnumeration(x, "SecurityLevel"))
+    }
 }
