@@ -7,11 +7,11 @@ import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.DEROctetString
 import org.scalatest.EitherValues
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers._
+import org.scalatest.matchers.should.Matchers
 
 import ASN1TypeConversions._
 
-class ASN1TypeConversionsSpec extends AnyFlatSpec with EitherValues {
+class ASN1TypeConversionsSpec extends AnyFlatSpec with EitherValues with Matchers {
 
   "convertToInt" should "return Int value when valid ASN1Integer is used" in {
     val expected = 123
@@ -28,7 +28,7 @@ class ASN1TypeConversionsSpec extends AnyFlatSpec with EitherValues {
   }
 
   it should "return Type Mismatch failure when unsupported ASN1 type is used" in {
-    val asn1Boolean = ASN1Boolean.getInstance(false)
+    val asn1Boolean = ASN1Boolean.FALSE
     val result      = convertToInt(asn1Boolean)
 
     result.left.value shouldBe TypeMismatch(asn1Boolean, "Int")
@@ -42,14 +42,14 @@ class ASN1TypeConversionsSpec extends AnyFlatSpec with EitherValues {
   }
 
   it should "return Type Mismatch failure when unsupported ASN1 type is used" in {
-    val asn1Boolean = ASN1Boolean.getInstance(false)
+    val asn1Boolean = ASN1Boolean.FALSE
     val result      = convertToLong(asn1Boolean)
 
     result.left.value shouldBe TypeMismatch(asn1Boolean, "Long")
   }
 
   "convertToBoolean" should "return boolean value when ASN1Boolean is used" in {
-    val asn1Boolean = ASN1Boolean.getInstance(true)
+    val asn1Boolean = ASN1Boolean.TRUE
     val result      = convertToBoolean(asn1Boolean)
 
     result.value shouldBe true
@@ -70,7 +70,7 @@ class ASN1TypeConversionsSpec extends AnyFlatSpec with EitherValues {
   }
 
   it should "return Type Mismatch failure when unsupported ASN1 type is used" in {
-    val asn1Boolean = ASN1Boolean.getInstance(true)
+    val asn1Boolean = ASN1Boolean.TRUE
     val result      = convertToString(asn1Boolean)
 
     result.left.value shouldBe TypeMismatch(asn1Boolean, "String")
@@ -84,7 +84,7 @@ class ASN1TypeConversionsSpec extends AnyFlatSpec with EitherValues {
   }
 
   it should "return Type Mismatch failure when unsupported ASN1 type is used" in {
-    val asn1Boolean = ASN1Boolean.getInstance(true)
+    val asn1Boolean = ASN1Boolean.TRUE
     val result      = convertToBytes(asn1Boolean)
 
     result.left.value shouldBe TypeMismatch(asn1Boolean, "Array[Byte]")

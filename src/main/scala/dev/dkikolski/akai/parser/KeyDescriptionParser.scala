@@ -168,13 +168,13 @@ object KeyDescriptionParser {
       )
 
   private def parseRootOfTrust(
-      tseq: ASN1TypeNarrowedSeq
+      seq: ASN1TypeNarrowedSeq
   ): Either[ParsingFailure, Option[RootOfTrust]] = {
     for {
-      veryfiedBootKey   <- tseq.parseBytesAt(0)
-      deviceLocked      <- tseq.parseBooleanAt(1)
-      verifiedBootState <- tseq.parseIntAt(2).flatMap(parseVerifiedBootState)
-      verifiedBootHash  <- tseq.parseBytesOrEmptyAt(3)
+      veryfiedBootKey   <- seq.parseBytesAt(0)
+      deviceLocked      <- seq.parseBooleanAt(1)
+      verifiedBootState <- seq.parseIntAt(2).flatMap(parseVerifiedBootState)
+      verifiedBootHash  <- seq.parseBytesOrEmptyAt(3)
     } yield Some(RootOfTrust(veryfiedBootKey, deviceLocked, verifiedBootState, verifiedBootHash))
   }
 

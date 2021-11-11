@@ -57,5 +57,4 @@ private[parser] object ASN1TypeConversions {
     String(octetString.getOctets)
 
   private[this] def convertToBoolean(b: ASN1Boolean): Boolean = b.isTrue
-
 }

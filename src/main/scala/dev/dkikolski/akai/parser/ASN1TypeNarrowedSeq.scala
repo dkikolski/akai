@@ -31,7 +31,7 @@ private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
       .map(_.getOctets)
 
   def parseBytesOrEmptyAt(index: Int): Either[ParsingFailure, Array[Byte]] =
-    if (seq.size() > index) Right(Array.emptyByteArray)
+    if (seq.size() == 0) Right(Array.emptyByteArray)
     else parseBytesAt(index)
 
   private[this] def convertToASN1Sequence(
