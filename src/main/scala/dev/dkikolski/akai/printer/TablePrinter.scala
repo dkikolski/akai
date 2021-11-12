@@ -69,7 +69,7 @@ object TablePrinter {
       "Root of Trust: Verified Boot Key"   -> extractBothRoT(_.verifiedBootKey, bytesToHex),
       "Root of Trust: Device Locked"       -> extractBothRoT(_.deviceLocked),
       "Root of Trust: Verified Boot State" -> extractBothRoT(_.verifiedBootState),
-      "Root of Trust: Verified Boot Hash"  -> extractBothRoT(_.verifiedBootHash, bytesToString),
+      "Root of Trust: Verified Boot Hash"  -> extractBothRoT(_.verifiedBootHash, bytesToHex),
       "OS Version"                         -> extractBoth(_.osVersion, optionToString),
       "OS Patch Level"                     -> extractBoth(_.osPatchLevel, optionToString),
       "Attestation Application ID"  -> extractBoth(_.attestationApplicationId, bytesToString),

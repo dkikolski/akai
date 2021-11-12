@@ -61,7 +61,9 @@ Root of Trust: Verified Boot Key     | <empty>                              | 00
                                      |                                      | 00 00 00 00 00 00 00 00             
 Root of Trust: Device Locked         | <empty>                              | false                               
 Root of Trust: Verified Boot State   | <empty>                              | Unverified                          
-Root of Trust: Verified Boot Hash    | <empty>                              | <empty>                             
+Root of Trust: Verified Boot Hash    | <empty>                              | 72 8d b1 27 4f 1f 1c f1 57 1d e4 38 
+                                     |                                      | 0b 04 8a 55 4a c4 a3 80 e7 6f 53 55 
+                                     |                                      | 08 35 29 08 4a 93 78 01             
 OS Version                           | <empty>                              | 0                                   
 OS Patch Level                       | <empty>                              | 201907                              
 Attestation Application ID           | 0...1...0...android...0...com.androi | <empty>                             
@@ -86,6 +88,7 @@ Attestation ID MEID                  | <empty>                              | <e
 Attestation ID Manufacturer          | <empty>                              | <empty>                             
 Attestation ID Model                 | <empty>                              | <empty>                             
 Vendor Patch level                   | <empty>                              | 201907                              
-Boot patch level                     | <empty>                              | 201907
+Boot patch level                     | <empty>                              | 201907                              
+
 ```
 

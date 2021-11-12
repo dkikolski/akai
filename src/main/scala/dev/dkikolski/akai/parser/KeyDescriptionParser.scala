@@ -8,6 +8,20 @@ import org.bouncycastle.asn1.ASN1Private
 import org.bouncycastle.asn1.ASN1Sequence
 
 object KeyDescriptionParser {
+  val VeryfiedBootKeyIndex   = 0
+  val DeviceLockedIndex      = 1
+  val VerifiedBootStateIndex = 2
+  val VerifiedBootHashIndex  = 3
+
+  val AttestationVersionIndex   = 0
+  val AttestationSecLevelIndex  = 1
+  val KeyMasterVersionIndex     = 2
+  val KeyMasterSecLevelIndex    = 3
+  val AttestationChallengeIndex = 4
+  val UniqueIdIndex             = 5
+  val SoftwareEnforcedIndex     = 6
+  val TeeEnforcedIndex          = 7
+
   val PurposeTag                     = 1
   val AlgorithmTag                   = 2
   val KeySizeTag                     = 3
@@ -50,20 +64,24 @@ object KeyDescriptionParser {
   def parse(asn1Seq: ASN1Sequence): Either[ParsingFailure, KeyDescription] = {
     val seq = ASN1TypeNarrowedSeq(asn1Seq)
     for {
-      attestationVersion   <- seq.parseToIntFrom(0)
-      attestationSecLvl    <- seq.parseToIntFrom(1).flatMap(parseSecurityLevel)
-      keyMasterVersion     <- seq.parseToIntFrom(2)
-      keyMasterSecLvl      <- seq.parseToIntFrom(3).flatMap(parseSecurityLevel)
-      attestationChallenge <- seq.parseToBytesFrom(4)
-      uniqueId             <- seq.parseToBytesFrom(5)
-      softwareEnforced     <- seq.parseToTaggedObjectsFrom(6).flatMap(parseAuthorizationList)
-      teeEnforced          <- seq.parseToTaggedObjectsFrom(7).flatMap(parseAuthorizationList)
+      attestationVersion <- seq.parseToIntFrom(AttestationVersionIndex)
+      attestationSecLevel <- seq
+        .parseToIntFrom(AttestationSecLevelIndex)
+        .flatMap(parseSecurityLevel)
+      keyMasterVersion     <- seq.parseToIntFrom(KeyMasterVersionIndex)
+      keyMasterSecLevel    <- seq.parseToIntFrom(KeyMasterSecLevelIndex).flatMap(parseSecurityLevel)
+      attestationChallenge <- seq.parseToBytesFrom(AttestationChallengeIndex)
+      uniqueId             <- seq.parseToBytesFrom(UniqueIdIndex)
+      softwareEnforced <- seq
+        .parseToTaggedObjectsFrom(SoftwareEnforcedIndex)
+        .flatMap(parseAuthorizationList)
+      teeEnforced <- seq.parseToTaggedObjectsFrom(TeeEnforcedIndex).flatMap(parseAuthorizationList)
 
       keyDescription = KeyDescription(
         attestationVersion,
-        attestationSecLvl,
+        attestationSecLevel,
         keyMasterVersion,
-        keyMasterSecLvl,
+        keyMasterSecLevel,
         attestationChallenge,
         uniqueId,
         softwareEnforced,
@@ -91,7 +109,7 @@ object KeyDescriptionParser {
       applicationId             <- taggedValues.parseToBytesFrom(ApplicationIdTag)
       creationDateTime          <- taggedValues.parseToInstantFrom(CreationDateTimeTag)
       origin                    <- taggedValues.parseToIntFrom(OriginTag)
-      rootOfTrust               <- getRootOfTrust(taggedValues)
+      rootOfTrust               <- parseToRootOfTrustFrom(taggedValues)
       osVersion                 <- taggedValues.parseToIntFrom(OsVersionTag)
       osPatchLevel              <- taggedValues.parseToIntFrom(OsPatchLevelTag)
       attestationApplicationId  <- taggedValues.parseToBytesFrom(AttestationApplicationIdTag)
@@ -146,20 +164,18 @@ object KeyDescriptionParser {
         attestationIdModel = attestationIdModel,
         vendorPatchLevel = vendorPatchLevel,
         bootPatchLevel = bootPatchLevel,
-        rollbackResistance = taggedValues.parseToBooleanFrom(RollbackResitanceTag),
-        noAuthRequired = taggedValues.parseToBooleanFrom(NoAuthRequiredTag),
-        allowWhileOnBody = taggedValues.parseToBooleanFrom(AllowWhileOnBodyTag),
-        trustedUserPresenceRequired =
-          taggedValues.parseToBooleanFrom(TrustedUserPresenceRequiredTag),
-        trustedConfirmationRequired =
-          taggedValues.parseToBooleanFrom(TrustedConfirmationRequiredTag),
-        unlockedDeviceRequired = taggedValues.parseToBooleanFrom(UnlockedDeviceRequiredTag),
-        allApplications = taggedValues.parseToBooleanFrom(AllApplicationsTag)
+        rollbackResistance = rollbackResistance,
+        noAuthRequired = noAuthRiquired,
+        allowWhileOnBody = allowWhileOnBody,
+        trustedUserPresenceRequired = trustedUserPresenceRequired,
+        trustedConfirmationRequired = trustedConfirmationRequired,
+        unlockedDeviceRequired = deviceUniqueAttestation,
+        allApplications = allApplications
       )
     } yield authList
   }
 
-  private def getRootOfTrust(
+  private def parseToRootOfTrustFrom(
       taggedValues: ASN1TypeNarrowedTaggedObjects
   ): Either[ParsingFailure, Option[RootOfTrust]] =
     taggedValues
@@ -173,10 +189,12 @@ object KeyDescriptionParser {
       seq: ASN1TypeNarrowedSeq
   ): Either[ParsingFailure, Option[RootOfTrust]] = {
     for {
-      veryfiedBootKey   <- seq.parseToBytesFrom(0)
-      deviceLocked      <- seq.parseToBooleanFrom(1)
-      verifiedBootState <- seq.parseToIntFrom(2).flatMap(parseVerifiedBootState)
-      verifiedBootHash  <- seq.parseToBytesOrEmptyFrom(3)
+      veryfiedBootKey <- seq.parseToBytesFrom(VeryfiedBootKeyIndex)
+      deviceLocked    <- seq.parseToBooleanFrom(DeviceLockedIndex)
+      verifiedBootState <- seq
+        .parseToIntFrom(VerifiedBootStateIndex)
+        .flatMap(parseVerifiedBootState)
+      verifiedBootHash <- seq.parseToBytesOrEmptyFrom(VerifiedBootHashIndex)
     } yield Some(RootOfTrust(veryfiedBootKey, deviceLocked, verifiedBootState, verifiedBootHash))
   }
 
