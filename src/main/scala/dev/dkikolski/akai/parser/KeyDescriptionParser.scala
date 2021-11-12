@@ -50,14 +50,14 @@ object KeyDescriptionParser {
   def parse(asn1Seq: ASN1Sequence): Either[ParsingFailure, KeyDescription] = {
     val seq = ASN1TypeNarrowedSeq(asn1Seq)
     for {
-      attestationVersion   <- seq.parseIntAt(0)
-      attestationSecLvl    <- seq.parseIntAt(1).flatMap(parseSecurityLevel)
-      keyMasterVersion     <- seq.parseIntAt(2)
-      keyMasterSecLvl      <- seq.parseIntAt(3).flatMap(parseSecurityLevel)
-      attestationChallenge <- seq.parseBytesAt(4)
-      uniqueId             <- seq.parseBytesAt(5)
-      softwareEnforced     <- seq.parseTaggedObjectsAt(6).flatMap(parseAuthorizationList)
-      teeEnforced          <- seq.parseTaggedObjectsAt(7).flatMap(parseAuthorizationList)
+      attestationVersion   <- seq.parseToIntFrom(0)
+      attestationSecLvl    <- seq.parseToIntFrom(1).flatMap(parseSecurityLevel)
+      keyMasterVersion     <- seq.parseToIntFrom(2)
+      keyMasterSecLvl      <- seq.parseToIntFrom(3).flatMap(parseSecurityLevel)
+      attestationChallenge <- seq.parseToBytesFrom(4)
+      uniqueId             <- seq.parseToBytesFrom(5)
+      softwareEnforced     <- seq.parseToTaggedObjectsFrom(6).flatMap(parseAuthorizationList)
+      teeEnforced          <- seq.parseToTaggedObjectsFrom(7).flatMap(parseAuthorizationList)
 
       keyDescription = KeyDescription(
         attestationVersion,
@@ -76,45 +76,45 @@ object KeyDescriptionParser {
       taggedValues: ASN1TypeNarrowedTaggedObjects
   ): Either[ParsingFailure, AuthorizationList] = {
     for {
-      purposes                  <- taggedValues.getIntSet(PurposeTag)
-      algorithm                 <- taggedValues.getInt(AlgorithmTag)
-      keySize                   <- taggedValues.getInt(KeySizeTag)
-      digests                   <- taggedValues.getIntSet(DigestTag)
-      paddings                  <- taggedValues.getIntSet(PaddingTag)
-      ecCurves                  <- taggedValues.getIntSet(EcCurveTag)
-      rsaPubExponent            <- taggedValues.getLong(RsaPublicExponentTag)
-      activeDateTime            <- taggedValues.getInstant(ActiveDateTimeTag)
-      originationExpireDateTime <- taggedValues.getInstant(OriginationExpireDateTimeTag)
-      usageExpireDateTime       <- taggedValues.getInstant(UsageExpireDateTimeTag)
-      userAuthType              <- taggedValues.getLong(UserAuthTypeTag)
-      userAuthTimeout           <- taggedValues.getDuration(AuthTimeoutTag)
-      applicationId             <- taggedValues.getBytes(ApplicationIdTag)
-      creationDateTime          <- taggedValues.getInstant(CreationDateTimeTag)
-      origin                    <- taggedValues.getInt(OriginTag)
+      purposes                  <- taggedValues.parseToIntSetFrom(PurposeTag)
+      algorithm                 <- taggedValues.parseToIntFrom(AlgorithmTag)
+      keySize                   <- taggedValues.parseToIntFrom(KeySizeTag)
+      digests                   <- taggedValues.parseToIntSetFrom(DigestTag)
+      paddings                  <- taggedValues.parseToIntSetFrom(PaddingTag)
+      ecCurves                  <- taggedValues.parseToIntSetFrom(EcCurveTag)
+      rsaPubExponent            <- taggedValues.parseToLongFrom(RsaPublicExponentTag)
+      activeDateTime            <- taggedValues.parseToInstantFrom(ActiveDateTimeTag)
+      originationExpireDateTime <- taggedValues.parseToInstantFrom(OriginationExpireDateTimeTag)
+      usageExpireDateTime       <- taggedValues.parseToInstantFrom(UsageExpireDateTimeTag)
+      userAuthType              <- taggedValues.parseToLongFrom(UserAuthTypeTag)
+      userAuthTimeout           <- taggedValues.parseToDurationFrom(AuthTimeoutTag)
+      applicationId             <- taggedValues.parseToBytesFrom(ApplicationIdTag)
+      creationDateTime          <- taggedValues.parseToInstantFrom(CreationDateTimeTag)
+      origin                    <- taggedValues.parseToIntFrom(OriginTag)
       rootOfTrust               <- getRootOfTrust(taggedValues)
-      osVersion                 <- taggedValues.getInt(OsVersionTag)
-      osPatchLevel              <- taggedValues.getInt(OsPatchLevelTag)
-      attestationApplicationId  <- taggedValues.getBytes(AttestationApplicationIdTag)
-      attestationIdBrand        <- taggedValues.getBytes(AttestationIdBrandTag)
-      attestationIdDevice       <- taggedValues.getBytes(AttestationIdDeviceTag)
-      attestationIdProduct      <- taggedValues.getBytes(AttestationIdProductTag)
-      attestationIdSerial       <- taggedValues.getBytes(AttestationIdSerialTag)
-      attestationIdImei         <- taggedValues.getBytes(AttestationIdImeiTag)
-      attestationIdMeid         <- taggedValues.getBytes(AttestationIdMeidTag)
-      attestationIdManufacturer <- taggedValues.getBytes(AttestationIdManufacturerTag)
-      attestationIdModel        <- taggedValues.getBytes(AttestationIdModelTag)
-      vendorPatchLevel          <- taggedValues.getInt(VendorPatchLevelTag)
-      bootPatchLevel            <- taggedValues.getInt(BootPatchLevelTag)
+      osVersion                 <- taggedValues.parseToIntFrom(OsVersionTag)
+      osPatchLevel              <- taggedValues.parseToIntFrom(OsPatchLevelTag)
+      attestationApplicationId  <- taggedValues.parseToBytesFrom(AttestationApplicationIdTag)
+      attestationIdBrand        <- taggedValues.parseToBytesFrom(AttestationIdBrandTag)
+      attestationIdDevice       <- taggedValues.parseToBytesFrom(AttestationIdDeviceTag)
+      attestationIdProduct      <- taggedValues.parseToBytesFrom(AttestationIdProductTag)
+      attestationIdSerial       <- taggedValues.parseToBytesFrom(AttestationIdSerialTag)
+      attestationIdImei         <- taggedValues.parseToBytesFrom(AttestationIdImeiTag)
+      attestationIdMeid         <- taggedValues.parseToBytesFrom(AttestationIdMeidTag)
+      attestationIdManufacturer <- taggedValues.parseToBytesFrom(AttestationIdManufacturerTag)
+      attestationIdModel        <- taggedValues.parseToBytesFrom(AttestationIdModelTag)
+      vendorPatchLevel          <- taggedValues.parseToIntFrom(VendorPatchLevelTag)
+      bootPatchLevel            <- taggedValues.parseToIntFrom(BootPatchLevelTag)
 
-      rollbackResistance          = taggedValues.getBoolean(RollbackResitanceTag)
-      noAuthRiquired              = taggedValues.getBoolean(NoAuthRequiredTag)
-      allowWhileOnBody            = taggedValues.getBoolean(AllowWhileOnBodyTag)
-      trustedUserPresenceRequired = taggedValues.getBoolean(TrustedUserPresenceRequiredTag)
-      trustedConfirmationRequired = taggedValues.getBoolean(TrustedConfirmationRequiredTag)
-      unlockedDeviceRequired      = taggedValues.getBoolean(UnlockedDeviceRequiredTag)
-      allApplications             = taggedValues.getBoolean(AllApplicationsTag)
-      rollbackResistant           = taggedValues.getBoolean(RollbackResistantTag)
-      deviceUniqueAttestation     = taggedValues.getBoolean(DeviceUniqueAttestationTag)
+      rollbackResistance          = taggedValues.parseToBooleanFrom(RollbackResitanceTag)
+      noAuthRiquired              = taggedValues.parseToBooleanFrom(NoAuthRequiredTag)
+      allowWhileOnBody            = taggedValues.parseToBooleanFrom(AllowWhileOnBodyTag)
+      trustedUserPresenceRequired = taggedValues.parseToBooleanFrom(TrustedUserPresenceRequiredTag)
+      trustedConfirmationRequired = taggedValues.parseToBooleanFrom(TrustedConfirmationRequiredTag)
+      unlockedDeviceRequired      = taggedValues.parseToBooleanFrom(UnlockedDeviceRequiredTag)
+      allApplications             = taggedValues.parseToBooleanFrom(AllApplicationsTag)
+      rollbackResistant           = taggedValues.parseToBooleanFrom(RollbackResistantTag)
+      deviceUniqueAttestation     = taggedValues.parseToBooleanFrom(DeviceUniqueAttestationTag)
 
       authList = AuthorizationList(
         purpose = purposes,
@@ -146,13 +146,15 @@ object KeyDescriptionParser {
         attestationIdModel = attestationIdModel,
         vendorPatchLevel = vendorPatchLevel,
         bootPatchLevel = bootPatchLevel,
-        rollbackResistance = taggedValues.getBoolean(RollbackResitanceTag),
-        noAuthRequired = taggedValues.getBoolean(NoAuthRequiredTag),
-        allowWhileOnBody = taggedValues.getBoolean(AllowWhileOnBodyTag),
-        trustedUserPresenceRequired = taggedValues.getBoolean(TrustedUserPresenceRequiredTag),
-        trustedConfirmationRequired = taggedValues.getBoolean(TrustedConfirmationRequiredTag),
-        unlockedDeviceRequired = taggedValues.getBoolean(UnlockedDeviceRequiredTag),
-        allApplications = taggedValues.getBoolean(AllApplicationsTag)
+        rollbackResistance = taggedValues.parseToBooleanFrom(RollbackResitanceTag),
+        noAuthRequired = taggedValues.parseToBooleanFrom(NoAuthRequiredTag),
+        allowWhileOnBody = taggedValues.parseToBooleanFrom(AllowWhileOnBodyTag),
+        trustedUserPresenceRequired =
+          taggedValues.parseToBooleanFrom(TrustedUserPresenceRequiredTag),
+        trustedConfirmationRequired =
+          taggedValues.parseToBooleanFrom(TrustedConfirmationRequiredTag),
+        unlockedDeviceRequired = taggedValues.parseToBooleanFrom(UnlockedDeviceRequiredTag),
+        allApplications = taggedValues.parseToBooleanFrom(AllApplicationsTag)
       )
     } yield authList
   }
@@ -161,7 +163,7 @@ object KeyDescriptionParser {
       taggedValues: ASN1TypeNarrowedTaggedObjects
   ): Either[ParsingFailure, Option[RootOfTrust]] =
     taggedValues
-      .getASN1TypeNarrowedSeq(RootOfTrustTag)
+      .parseToASN1TypeNarrowedSeqFrom(RootOfTrustTag)
       .flatMap(
         _.map(parseRootOfTrust)
           .getOrElse(Right(None))
@@ -171,23 +173,23 @@ object KeyDescriptionParser {
       seq: ASN1TypeNarrowedSeq
   ): Either[ParsingFailure, Option[RootOfTrust]] = {
     for {
-      veryfiedBootKey   <- seq.parseBytesAt(0)
-      deviceLocked      <- seq.parseBooleanAt(1)
-      verifiedBootState <- seq.parseIntAt(2).flatMap(parseVerifiedBootState)
-      verifiedBootHash  <- seq.parseBytesOrEmptyAt(3)
+      veryfiedBootKey   <- seq.parseToBytesFrom(0)
+      deviceLocked      <- seq.parseToBooleanFrom(1)
+      verifiedBootState <- seq.parseToIntFrom(2).flatMap(parseVerifiedBootState)
+      verifiedBootHash  <- seq.parseToBytesOrEmptyFrom(3)
     } yield Some(RootOfTrust(veryfiedBootKey, deviceLocked, verifiedBootState, verifiedBootHash))
   }
 
-  private def parseVerifiedBootState(candidate: Int): Either[ParsingFailure, VerifiedBootState] = 
+  private def parseVerifiedBootState(candidate: Int): Either[ParsingFailure, VerifiedBootState] =
     candidate match {
       case 0 => Right(VerifiedBootState.Verified)
-      case 1 => Right(VerifiedBootState.SelfSigned) 
+      case 1 => Right(VerifiedBootState.SelfSigned)
       case 2 => Right(VerifiedBootState.Unverified)
       case 3 => Right(VerifiedBootState.Failed)
       case x => Left(UnmatchedEnumeration(x, "VerifiedBootState"))
     }
 
-  private def parseSecurityLevel(candidate: Int): Either[ParsingFailure, SecurityLevel] = 
+  private def parseSecurityLevel(candidate: Int): Either[ParsingFailure, SecurityLevel] =
     candidate match {
       case 0 => Right(SecurityLevel.Software)
       case 1 => Right(SecurityLevel.TrustedEnvironment)

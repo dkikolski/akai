@@ -14,45 +14,47 @@ import ASN1TypeConversions._
 private[parser] final class ASN1TypeNarrowedTaggedObjects(
     private val taggedValues: Map[Int, ASN1Primitive]
 ) {
-  def getIntSet(tag: Int): Either[ParsingFailure, Set[Int]] =
+  def parseToIntSetFrom(tag: Int): Either[ParsingFailure, Set[Int]] =
     taggedValues
       .get(tag)
       .map(parseToIntSet)
       .getOrElse(Right(Set.empty))
 
-  def getInt(tag: Int): Either[ParsingFailure, Option[Int]] =
+  def parseToIntFrom(tag: Int): Either[ParsingFailure, Option[Int]] =
     taggedValues
       .get(tag)
       .map(convertToInt(_).map(Some(_)))
       .getOrElse(Right(None))
 
-  def getLong(tag: Int): Either[ParsingFailure, Option[Long]] =
+  def parseToLongFrom(tag: Int): Either[ParsingFailure, Option[Long]] =
     taggedValues
       .get(tag)
       .map(convertToLong(_).map(Some(_)))
       .getOrElse(Right(None))
 
-  def getBoolean(tag: Int): Boolean = taggedValues.get(tag).isDefined
+  def parseToBooleanFrom(tag: Int): Boolean = taggedValues.get(tag).isDefined
 
-  def getInstant(tag: Int): Either[ParsingFailure, Option[Instant]] =
+  def parseToInstantFrom(tag: Int): Either[ParsingFailure, Option[Instant]] =
     taggedValues
       .get(tag)
       .map(parseToInstant(_).map(Some(_)))
       .getOrElse(Right(None))
 
-  def getDuration(tag: Int): Either[ParsingFailure, Option[Duration]] =
+  def parseToDurationFrom(tag: Int): Either[ParsingFailure, Option[Duration]] =
     taggedValues
       .get(tag)
       .map(parseToDurationFromSeconds(_).map(Some(_)))
       .getOrElse(Right(None))
 
-  def getBytes(tag: Int): Either[ParsingFailure, Array[Byte]] =
+  def parseToBytesFrom(tag: Int): Either[ParsingFailure, Array[Byte]] =
     taggedValues
       .get(tag)
       .map(convertToBytes)
       .getOrElse(Right(Array.emptyByteArray))
 
-  def getASN1TypeNarrowedSeq(tag: Int): Either[ParsingFailure, Option[ASN1TypeNarrowedSeq]] =
+  def parseToASN1TypeNarrowedSeqFrom(
+      tag: Int
+  ): Either[ParsingFailure, Option[ASN1TypeNarrowedSeq]] =
     taggedValues
       .get(tag)
       .map(parseAsASN1TypeNarrowedSeq(_).map(Some(_)))
