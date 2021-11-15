@@ -14,45 +14,45 @@ import ASN1TypeConversions._
 private[parser] final class ASN1TypeNarrowedTaggedObjects(
     private val taggedValues: Map[Int, ASN1Primitive]
 ) {
-  def parseToIntSetFrom(tag: Int): Either[ParsingFailure, Set[Int]] =
+  def getIntSetOrEmptyAt(tag: Int): Either[ParsingFailure, Set[Int]] =
     taggedValues
       .get(tag)
       .map(parseToIntSet)
       .getOrElse(Right(Set.empty))
 
-  def parseToIntFrom(tag: Int): Either[ParsingFailure, Option[Int]] =
+  def getOptionalIntAt(tag: Int): Either[ParsingFailure, Option[Int]] =
     taggedValues
       .get(tag)
       .map(convertToInt(_).map(Some(_)))
       .getOrElse(Right(None))
 
-  def parseToLongFrom(tag: Int): Either[ParsingFailure, Option[Long]] =
+  def getOptionalLongAt(tag: Int): Either[ParsingFailure, Option[Long]] =
     taggedValues
       .get(tag)
       .map(convertToLong(_).map(Some(_)))
       .getOrElse(Right(None))
 
-  def parseToBooleanFrom(tag: Int): Boolean = taggedValues.get(tag).isDefined
+  def getBooleanAt(tag: Int): Boolean = taggedValues.get(tag).isDefined
 
-  def parseToInstantFrom(tag: Int): Either[ParsingFailure, Option[Instant]] =
+  def getOptionalInstantAt(tag: Int): Either[ParsingFailure, Option[Instant]] =
     taggedValues
       .get(tag)
       .map(parseToInstant(_).map(Some(_)))
       .getOrElse(Right(None))
 
-  def parseToDurationFrom(tag: Int): Either[ParsingFailure, Option[Duration]] =
+  def getOptionalDurationAt(tag: Int): Either[ParsingFailure, Option[Duration]] =
     taggedValues
       .get(tag)
       .map(parseToDurationFromSeconds(_).map(Some(_)))
       .getOrElse(Right(None))
 
-  def parseToBytesFrom(tag: Int): Either[ParsingFailure, Array[Byte]] =
+  def getBytesOrEmptyAt(tag: Int): Either[ParsingFailure, Array[Byte]] =
     taggedValues
       .get(tag)
       .map(convertToBytes)
       .getOrElse(Right(Array.emptyByteArray))
 
-  def parseToASN1TypeNarrowedSeqFrom(
+  def getOptionalASN1SeqAt(
       tag: Int
   ): Either[ParsingFailure, Option[ASN1TypeNarrowedSeq]] =
     taggedValues

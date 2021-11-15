@@ -11,28 +11,28 @@ import ASN1TypeConversions._
 
 private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
 
-  def parseToBooleanFrom(index: Int): Either[ParsingFailure, Boolean] =
+  def getBooleanAt(index: Int): Either[ParsingFailure, Boolean] =
     getAt(index).flatMap(convertToBoolean)
 
-  def parseToIntFrom(index: Int): Either[ParsingFailure, Int] =
+  def getIntAt(index: Int): Either[ParsingFailure, Int] =
     getAt(index).flatMap(convertToInt)
 
-  def parseToStringFrom(index: Int): Either[ParsingFailure, String] =
+  def getStringAt(index: Int): Either[ParsingFailure, String] =
     getAt(index).flatMap(convertToString)
 
-  def parseToTaggedObjectsFrom(index: Int): Either[ParsingFailure, ASN1TypeNarrowedTaggedObjects] =
+  def getTaggedObjectsAt(index: Int): Either[ParsingFailure, ASN1TypeNarrowedTaggedObjects] =
     getAt(index)
       .flatMap(convertToASN1Sequence)
       .map(ASN1TypeNarrowedTaggedObjects(_))
 
-  def parseToBytesFrom(index: Int): Either[ParsingFailure, Array[Byte]] =
+  def getBytesAt(index: Int): Either[ParsingFailure, Array[Byte]] =
     getAt(index)
       .flatMap(convertToASN1OctetString)
       .map(_.getOctets)
 
-  def parseToBytesOrEmptyFrom(index: Int): Either[ParsingFailure, Array[Byte]] =
-    if (seq.size() == 0) Right(Array.emptyByteArray)
-    else parseToBytesFrom(index)
+  def getBytesOrEmptyAt(index: Int): Either[ParsingFailure, Array[Byte]] =
+    if (seq.size() <= index) Right(Array.emptyByteArray)
+    else getBytesAt(index)
 
   private[this] def convertToASN1Sequence(
       encodable: ASN1Encodable
