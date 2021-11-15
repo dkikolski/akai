@@ -14,4 +14,7 @@ uber-jar:
   stage: assembly
   script:
     - sbt assembly
-    - ls target/scala-3.1.0/
+  artifacts:
+    paths: 
+      - target/scala-3.1.0/akai.jar
+    expire_in: 1 week 
