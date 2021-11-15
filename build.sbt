@@ -27,4 +27,4 @@ graalVMNativeImageOptions := Seq(
 
 enablePlugins(GraalVMNativeImagePlugin)
 
-logBuffered in Test := false
+Test / logBuffered:= false

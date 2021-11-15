@@ -14,3 +14,4 @@ uber-jar:
   stage: assembly
   script:
     - sbt assembly
+    - ls target/scala-3.1.0/
