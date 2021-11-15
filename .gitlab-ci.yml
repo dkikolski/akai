@@ -2,9 +2,15 @@ image: "hseeberger/scala-sbt:11.0.13_1.5.5_3.1.0"
 
 stages:
   - test
+  - assembly
 
 unit-tests:
   stage: test
   timeout: 3m
   script:
     - sbt test
+
+uber-jar:
+  stage: assembly
+  script:
+    - sbt assembly
