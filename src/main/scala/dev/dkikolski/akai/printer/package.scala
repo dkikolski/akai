@@ -2,7 +2,7 @@ package dev.dkikolski.akai
 
 package object printer {
   private val UInt32MaxValue: Long = (Int.MaxValue.toLong << 1) + 1
-  private def unknown(i: Int) = s"($i)???"
+  private def unknown(i: Int)      = s"($i)???"
 
   def purposeFromInt(i: Int): String = i match {
     case 0 => "Encrypt"
@@ -72,4 +72,10 @@ package object printer {
         .toSet
     }
   }
+
+  def bytesToHex(bytes: Array[Byte]): Array[String] =
+    bytes.map(String.format("%02x", _))
+
+  def bytesToPrintableCharString(bytes: Array[Byte]): String = 
+    bytes.map(b => if (b >= 32) b.toChar else '.').mkString("")
 }

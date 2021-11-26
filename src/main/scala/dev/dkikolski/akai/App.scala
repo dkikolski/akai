@@ -1,11 +1,14 @@
 import dev.dkikolski.akai.cli.CommandLineArgsParser
+import dev.dkikolski.akai.cli.Discard
 import dev.dkikolski.akai.cli.ParseCertificate
 import dev.dkikolski.akai.cli.ShowHelp
-import dev.dkikolski.akai.cli.Discard
+import dev.dkikolski.akai.io.CertificateReader
 import dev.dkikolski.akai.parser.CertificateParser
 import dev.dkikolski.akai.parser.KeyDescriptionParser
 import dev.dkikolski.akai.parser.ParsingFailure
-import dev.dkikolski.akai.printer.TablePrinter
+import dev.dkikolski.akai.printer.TableFormatter
+import dev.dkikolski.akai.printer.JsonFormatter
+import dev.dkikolski.akai.printer.KeyDescriptionFormatter
 import dev.dkikolski.akai.schema.AuthorizationList
 import dev.dkikolski.akai.schema.SecurityLevel
 
@@ -25,7 +28,6 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 import scala.util.Using
-import dev.dkikolski.akai.io.CertificateReader
 
 @main def main(args: String*): Unit = {
   CommandLineArgsParser.parse(args) match {
@@ -53,8 +55,15 @@ def handleParsingCertificate(action: ParseCertificate): Unit = {
   } yield parsedKeyDescription
 
   certificateParsingResult match {
-    case Right(keyDescription) => println(TablePrinter.render(keyDescription))
-    case Left(failure)         => println(s"[ERROR] ${failure.getReason()}")
+    case Right(keyDescription) =>
+      println(
+        KeyDescriptionFormatter.render(
+          keyDescription,
+          action.outputFormat,
+          action.outputValuesFormat
+        )
+      )
+    case Left(failure) => println(s"[ERROR] ${failure.getReason()}")
   }
 }
 
