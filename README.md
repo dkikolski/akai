@@ -60,14 +60,28 @@ Akai supports certificates in PEM and DER format.
 
 Usage:
 ```
-Usage: akai [OPTION]... [FILE]
+Usage: akai [OPTION]... [FILE]\n
 With no FILE, read standard input.
  
 Options
-  --decode-base64    decode the input using Base64 decoding scheme 
-                     before parsing as a X509 certificate 
-  
-  --help             display this help message and exit
+  --decode-base64           decode the input using Base64 decoding scheme 
+                            before parsing as a X509 certificate 
+
+  --json-format             format output as a JSON object
+
+  --table-format            format output as a table (default option)
+
+  --raw-values              do not translate schema values to human 
+                            friendly format e.g. octet strings will 
+                            be printed in hex format instead of 
+                            converting to pritable characters
+
+  --human-friendly-values   translate schema values to human friendly
+                            format e.g. map integer to corresponding 
+                            enum values (default option)
+
+  --help                    display this help message and exit
+
 ```
 
 Examples of usage can be found in the [dedicated document](EXAMPLES.md)
