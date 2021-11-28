@@ -15,9 +15,9 @@ object CommandLineArgsParser {
       |  --decode-base64           decode the input using Base64 decoding scheme 
       |                            before parsing as a X509 certificate 
       |
-      |  --json-format             format output as a JSON object
+      |  --out-json             format output as a JSON object
       |
-      |  --table-format            format output as a table (default option)
+      |  --out-table            format output as a table (default option)
       |
       |  --raw-values              do not translate schema values to human 
       |                            friendly format e.g. octet strings will 
@@ -34,8 +34,8 @@ object CommandLineArgsParser {
 
   private val ShowHelpOption            = "--help"
   private val Base64DecodeOption        = "--decode-base64"
-  private val JsonFormatOption          = "--json-format"
-  private val TableFormatOption         = "--table-format"
+  private val JsonFormatOption          = "--out-json"
+  private val TableFormatOption         = "--out-table"
   private val RawValuesOption           = "--raw-values"
   private val HumanFriendlyValuesOption = "--human-friendly-values"
 

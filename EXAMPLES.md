@@ -96,7 +96,7 @@ vendorPatchLevel                     |                                      | 20
 
 Passing certificate from standard input:
 ``` bash
-cat ~/cert0.pem | akai --json-format
+cat ~/cert0.pem | akai --out-json
 ```
 
 will print to standard output the key description in the JSON format:
@@ -107,7 +107,7 @@ will print to standard output the key description in the JSON format:
 To print key description in the pretty JSON format it can be piped to the [`jq`](https://stedolan.github.io/jq/download/)
 
 ``` bash
-cat ~/cert0.pem | akai --json-format | jq
+cat ~/cert0.pem | akai --out-json | jq
 ```
 
 Exemplary result:
