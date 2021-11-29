@@ -9,9 +9,9 @@ import org.scalatest.EitherValues
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-import ASN1TypeConversions._
+import ASN1Conversions._
 
-class ASN1TypeConversionsSpec extends AnyFlatSpec with EitherValues with Matchers {
+class ASN1ConversionsSpec extends AnyFlatSpec with EitherValues with Matchers {
 
   "convertToInt" should "return Int value when valid ASN1Integer is used" in {
     val expected = 123

@@ -1,4 +1,4 @@
-package dev.dkikolski.akai.io
+package dev.dkikolski.akai.input
 
 import java.io.InputStream
 import java.io.BufferedReader

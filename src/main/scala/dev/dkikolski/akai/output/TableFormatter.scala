@@ -1,4 +1,4 @@
-package dev.dkikolski.akai.printer
+package dev.dkikolski.akai.output
 
 import dev.dkikolski.akai.schema.AuthorizationList
 import dev.dkikolski.akai.schema.KeyDescription
@@ -8,13 +8,13 @@ import java.awt.RenderingHints.Key
 import scala.annotation.tailrec
 import scala.collection.immutable.TreeMap
 
-object TableFormatter extends KeyDescriptionFormatter {
+private[output] object TableFormatter extends KeyDescriptionFormatter {
   private val ColumnWidth = 36
 
   private type TableRecord = (String, String, String)
 
   def render(keyDescription: KeyDescription, humanFriendlyFormat: Boolean): String = {
-    val intermediateModel: Map[String, Any] =
+    val intermediateModel: Seq[(String, Any)] =
       IntermediateModel(humanFriendlyFormat).convert(keyDescription)
 
     val generalInfoHeader = createTableHeader("Attestation info")
@@ -32,33 +32,48 @@ object TableFormatter extends KeyDescriptionFormatter {
   }
 
   def createGeneralInforRecords(
-      intermediateModel: Map[String, Any]
+      intermediateModel: Seq[(String, Any)]
   ): Seq[TableRecord] = {
-    (intermediateModel - "softwareEnforced" - "teeEnforced")
+    intermediateModel
+      .filterNot((key, value) => key.equals("softwareEnforced") || key.equals("teeEnforced"))
       .map((property, value) => (property, toStringValue(value), ""))
       .toSeq
   }
 
   def createAuthListsRecords(
-      intermediateModel: Map[String, Any]
+      intermediateModel: Seq[(String, Any)]
   ): Seq[TableRecord] = {
-    val softwareEnforced: Map[String, Any] = flattenAuthList(
-      intermediateModel("softwareEnforced").asInstanceOf[Map[String, Any]]
+    val softwareEnforced: Seq[(String, Any)] = flattenAuthList(
+      intermediateModel
+        .find((key, value) => key.equals("softwareEnforced"))
+        .map((key, value) => value.asInstanceOf[Seq[(String, Any)]])
+        .getOrElse(Seq())
     )
-    val teeEnforced: Map[String, Any] = flattenAuthList(
-      intermediateModel("teeEnforced").asInstanceOf[Map[String, Any]]
+    val teeEnforced: Seq[(String, Any)] = flattenAuthList(
+      intermediateModel
+        .find((key, value) => key.equals("teeEnforced"))
+        .map((key, value) => value.asInstanceOf[Seq[(String, Any)]])
+        .getOrElse(Seq())
     )
     (softwareEnforced zip teeEnforced)
       .map((left, right) => (left._1, toStringValue(left._2), toStringValue(right._2)))
       .toSeq
   }
 
-  def flattenAuthList(authList: Map[String, Any]): Map[String, Any] = {
-    val flattenRot = authList("rootOfTrust") match {
-      case None         => Map[String, Any]()
-      case m: Map[_, _] => m.map((k, v) => s"rootOfTrust.$k" -> v)
-    }
-    (authList - "rootOfTrust") concat flattenRot
+  def flattenAuthList(authList: Seq[(String, Any)]): Seq[(String, Any)] = {
+    val flattenRot = authList
+      .filter((key, value) => key.equals("rootOfTrust"))
+      .map((key, value) => value.asInstanceOf[Seq[(String, Any)]])
+      .headOption
+      .map(seq => seq.map((key, value) => s"rootOfTrust.$key" -> value))
+      .getOrElse(Seq())
+
+    // val flattenRot = authList("rootOfTrust") match {
+    //   case None         => Map[String, Any]()
+    //   case m: Map[_, _] => m.map((k, v) => s"rootOfTrust.$k" -> v)
+    // }
+
+    authList.filterNot((key, value) => key.equals("rootOfTrust")) concat flattenRot
   }
 
   private[this] def toStringValue(value: Any): String = value match {

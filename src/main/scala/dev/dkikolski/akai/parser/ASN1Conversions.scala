@@ -8,7 +8,7 @@ import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Private
 import org.bouncycastle.asn1.ASN1Primitive
 
-private[parser] object ASN1TypeConversions {
+private[parser] object ASN1Conversions {
 
   def convertToInt(encodable: ASN1Encodable): Either[ParsingFailure, Int] =
     convertToInt(encodable.toASN1Primitive)

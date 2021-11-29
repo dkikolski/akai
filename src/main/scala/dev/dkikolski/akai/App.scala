@@ -2,13 +2,13 @@ import dev.dkikolski.akai.cli.CommandLineArgsParser
 import dev.dkikolski.akai.cli.Discard
 import dev.dkikolski.akai.cli.ParseCertificate
 import dev.dkikolski.akai.cli.ShowHelp
-import dev.dkikolski.akai.io.CertificateReader
+import dev.dkikolski.akai.input.CertificateReader
+import dev.dkikolski.akai.output.JsonFormatter
+import dev.dkikolski.akai.output.KeyDescriptionFormatter
+import dev.dkikolski.akai.output.TableFormatter
 import dev.dkikolski.akai.parser.CertificateParser
 import dev.dkikolski.akai.parser.KeyDescriptionParser
 import dev.dkikolski.akai.parser.ParsingFailure
-import dev.dkikolski.akai.printer.TableFormatter
-import dev.dkikolski.akai.printer.JsonFormatter
-import dev.dkikolski.akai.printer.KeyDescriptionFormatter
 import dev.dkikolski.akai.schema.AuthorizationList
 import dev.dkikolski.akai.schema.SecurityLevel
 

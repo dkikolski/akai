@@ -9,7 +9,7 @@ import org.bouncycastle.asn1.ASN1TaggedObject
 import java.time.Duration
 import java.time.Instant
 
-import ASN1TypeConversions._
+import ASN1Conversions._
 
 private[parser] final class ASN1TypeNarrowedTaggedObjects(
     private val taggedValues: Map[Int, ASN1Primitive]
@@ -88,7 +88,7 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(
       encodables: Array[ASN1Encodable]
   ): Either[ParsingFailure, Set[Int]] =
     encodables
-      .map(ASN1TypeConversions.convertToInt)
+      .map(ASN1Conversions.convertToInt)
       .foldRight(Right(Set.empty): Either[ParsingFailure, Set[Int]])((e, acc) =>
         for (xs <- acc; x <- e) yield xs + x
       )

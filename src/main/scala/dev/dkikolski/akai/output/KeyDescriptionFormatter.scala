@@ -1,10 +1,10 @@
-package dev.dkikolski.akai.printer
+package dev.dkikolski.akai.output
 import dev.dkikolski.akai.schema.KeyDescription
 import dev.dkikolski.akai.cli.OutputFormat
 import dev.dkikolski.akai.schema.KeyDescription
 import dev.dkikolski.akai.cli.OutputValuesFormat
 
-trait KeyDescriptionFormatter {
+private[output] trait KeyDescriptionFormatter {
   def render(keyDescription: KeyDescription, humanFriendlyFormat: Boolean): String
 }
 

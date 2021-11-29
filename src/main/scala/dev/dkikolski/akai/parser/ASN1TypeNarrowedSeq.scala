@@ -7,7 +7,7 @@ import org.bouncycastle.asn1.ASN1Integer
 import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
 
-import ASN1TypeConversions._
+import ASN1Conversions._
 
 private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
 
