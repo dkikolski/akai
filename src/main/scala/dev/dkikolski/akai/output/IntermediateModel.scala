@@ -4,6 +4,7 @@ import dev.dkikolski.akai.schema.KeyDescription
 import dev.dkikolski.akai.schema.AuthorizationList
 import dev.dkikolski.akai.schema.RootOfTrust
 import scala.collection.immutable.TreeMap
+import java.time.Duration
 
 private[output] class IntermediateModel(private val humanFriendlyFormat: Boolean) {
   private val UInt32MaxValue: Long = (Int.MaxValue.toLong << 1) + 1
@@ -46,7 +47,10 @@ private[output] class IntermediateModel(private val humanFriendlyFormat: Boolean
         authList.userAuthType,
         _.map(userAuthTypeFromLong)
       ),
-      "authTimeout"                 -> RawValue(authList.authTimeout),
+      "authTimeout" -> HumanFriendlyValueCandidate(
+        authList.authTimeout,
+        _.map(durationStringFromSeconds)
+      ),
       "allowWhileOnBody"            -> RawValue(authList.allowWhileOnBody),
       "trustedUserPresenceRequired" -> RawValue(authList.trustedUserPresenceRequired),
       "trustedConfirmationRequired" -> RawValue(authList.trustedConfirmationRequired),
@@ -184,5 +188,9 @@ private[output] class IntermediateModel(private val humanFriendlyFormat: Boolean
         .map(_._2)
         .toSet
     }
+  }
+
+  private[this] def durationStringFromSeconds(seconds: Long): String = {
+    Duration.ofSeconds(seconds).toString()
   }
 }

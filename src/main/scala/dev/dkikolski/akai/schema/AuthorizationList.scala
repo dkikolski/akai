@@ -17,7 +17,7 @@ final case class AuthorizationList(
     val usageExpireDateTime: Option[Instant],
     val noAuthRequired: Boolean,
     val userAuthType: Option[Long],
-    val authTimeout: Option[Duration],
+    val authTimeout: Option[Long],
     val allowWhileOnBody: Boolean,
     val trustedUserPresenceRequired: Boolean,
     val trustedConfirmationRequired: Boolean,

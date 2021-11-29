@@ -105,7 +105,7 @@ object KeyDescriptionParser {
       originationExpireDateTime <- taggedValues.getOptionalInstantAt(OriginationExpireDateTimeTag)
       usageExpireDateTime       <- taggedValues.getOptionalInstantAt(UsageExpireDateTimeTag)
       userAuthType              <- taggedValues.getOptionalLongAt(UserAuthTypeTag)
-      userAuthTimeout           <- taggedValues.getOptionalDurationAt(AuthTimeoutTag)
+      userAuthTimeout           <- taggedValues.getOptionalLongAt(AuthTimeoutTag)
       applicationId             <- taggedValues.getBytesOrEmptyAt(ApplicationIdTag)
       creationDateTime          <- taggedValues.getOptionalInstantAt(CreationDateTimeTag)
       origin                    <- taggedValues.getOptionalIntAt(OriginTag)

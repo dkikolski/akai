@@ -40,12 +40,6 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(
       .map(parseToInstant(_).map(Some(_)))
       .getOrElse(Right(None))
 
-  def getOptionalDurationAt(tag: Int): Either[ParsingFailure, Option[Duration]] =
-    taggedValues
-      .get(tag)
-      .map(parseToDurationFromSeconds(_).map(Some(_)))
-      .getOrElse(Right(None))
-
   def getBytesOrEmptyAt(tag: Int): Either[ParsingFailure, Array[Byte]] =
     taggedValues
       .get(tag)
@@ -62,11 +56,6 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(
 
   private[this] def parseToInstant(primitive: ASN1Primitive): Either[ParsingFailure, Instant] =
     convertToLong(primitive).map(Instant.ofEpochMilli)
-
-  private[this] def parseToDurationFromSeconds(
-      primitive: ASN1Primitive
-  ): Either[ParsingFailure, Duration] =
-    convertToLong(primitive).map(Duration.ofSeconds)
 
   private[this] def parseAsASN1TypeNarrowedSeq(
       primitive: ASN1Primitive
