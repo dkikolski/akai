@@ -6,9 +6,6 @@ import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.ASN1Set
 import org.bouncycastle.asn1.ASN1TaggedObject
 
-import java.time.Duration
-import java.time.Instant
-
 import ASN1Conversions._
 
 private[parser] final class ASN1TypeNarrowedTaggedObjects(
@@ -34,12 +31,6 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(
 
   def getBooleanAt(tag: Int): Boolean = taggedValues.get(tag).isDefined
 
-  def getOptionalInstantAt(tag: Int): Either[ParsingFailure, Option[Instant]] =
-    taggedValues
-      .get(tag)
-      .map(parseToInstant(_).map(Some(_)))
-      .getOrElse(Right(None))
-
   def getBytesOrEmptyAt(tag: Int): Either[ParsingFailure, Array[Byte]] =
     taggedValues
       .get(tag)
@@ -53,9 +44,6 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(
       .get(tag)
       .map(parseAsASN1TypeNarrowedSeq(_).map(Some(_)))
       .getOrElse(Right(None))
-
-  private[this] def parseToInstant(primitive: ASN1Primitive): Either[ParsingFailure, Instant] =
-    convertToLong(primitive).map(Instant.ofEpochMilli)
 
   private[this] def parseAsASN1TypeNarrowedSeq(
       primitive: ASN1Primitive

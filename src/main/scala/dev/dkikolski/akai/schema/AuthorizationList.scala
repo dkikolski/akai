@@ -1,8 +1,5 @@
 package dev.dkikolski.akai.schema
 
-import java.time.Instant
-import java.time.Duration
-
 final case class AuthorizationList(
     val purpose: Set[Int],
     val algorithm: Option[Int],
@@ -12,9 +9,9 @@ final case class AuthorizationList(
     val ecCurve: Set[Int],
     val rsaPublicExponent: Option[Long],
     val rollbackResistance: Boolean,
-    val activeDateTime: Option[Instant],
-    val originationExpireDateTime: Option[Instant],
-    val usageExpireDateTime: Option[Instant],
+    val activeDateTime: Option[Long],
+    val originationExpireDateTime: Option[Long],
+    val usageExpireDateTime: Option[Long],
     val noAuthRequired: Boolean,
     val userAuthType: Option[Long],
     val authTimeout: Option[Long],
@@ -24,7 +21,7 @@ final case class AuthorizationList(
     val unlockedDeviceRequired: Boolean,
     val allApplications: Boolean,
     val applicationId: Array[Byte],
-    val creationDateTime: Option[Instant],
+    val creationDateTime: Option[Long],
     val origin: Option[Int],
     val rootOfTrust: Option[RootOfTrust],
     val osVersion: Option[Int],

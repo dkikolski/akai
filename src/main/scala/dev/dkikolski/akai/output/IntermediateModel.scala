@@ -1,10 +1,12 @@
 package dev.dkikolski.akai.output
 
-import dev.dkikolski.akai.schema.KeyDescription
 import dev.dkikolski.akai.schema.AuthorizationList
+import dev.dkikolski.akai.schema.KeyDescription
 import dev.dkikolski.akai.schema.RootOfTrust
-import scala.collection.immutable.TreeMap
+
 import java.time.Duration
+import java.time.Instant
+import scala.collection.immutable.TreeMap
 
 private[output] class IntermediateModel(private val humanFriendlyFormat: Boolean) {
   private val UInt32MaxValue: Long = (Int.MaxValue.toLong << 1) + 1
@@ -37,12 +39,21 @@ private[output] class IntermediateModel(private val humanFriendlyFormat: Boolean
       "digest"    -> HumanFriendlyValueCandidate(authList.digest, _.map(digestFromInt)),
       "padding"   -> HumanFriendlyValueCandidate(authList.padding, _.map(paddingFromInt)),
       "ecCurve"   -> HumanFriendlyValueCandidate(authList.ecCurve, _.map(ecCurveFromInt)),
-      "rsaPublicExponent"         -> RawValue(authList.rsaPublicExponent),
-      "rollbackResistance"        -> RawValue(authList.rollbackResistance),
-      "activeDateTime"            -> RawValue(authList.activeDateTime),
-      "originationExpireDateTime" -> RawValue(authList.originationExpireDateTime),
-      "usageExpireDateTime"       -> RawValue(authList.usageExpireDateTime),
-      "noAuthRequired"            -> RawValue(authList.noAuthRequired),
+      "rsaPublicExponent"  -> RawValue(authList.rsaPublicExponent),
+      "rollbackResistance" -> RawValue(authList.rollbackResistance),
+      "activeDateTime" -> HumanFriendlyValueCandidate(
+        authList.activeDateTime,
+        _.map(instantStringFromMillis)
+      ),
+      "originationExpireDateTime" -> HumanFriendlyValueCandidate(
+        authList.originationExpireDateTime,
+        _.map(instantStringFromMillis)
+      ),
+      "usageExpireDateTime" -> HumanFriendlyValueCandidate(
+        authList.usageExpireDateTime,
+        _.map(instantStringFromMillis)
+      ),
+      "noAuthRequired" -> RawValue(authList.noAuthRequired),
       "userAuthType" -> HumanFriendlyValueCandidate(
         authList.userAuthType,
         _.map(userAuthTypeFromLong)
@@ -57,7 +68,10 @@ private[output] class IntermediateModel(private val humanFriendlyFormat: Boolean
       "unlockedDeviceRequired"      -> RawValue(authList.unlockedDeviceRequired),
       "allApplications"             -> RawValue(authList.allApplications),
       "applicationId"               -> RawValue(authList.applicationId),
-      "creationDateTime"            -> RawValue(authList.creationDateTime),
+      "creationDateTime" -> HumanFriendlyValueCandidate(
+        authList.creationDateTime,
+        _.map(instantStringFromMillis)
+      ),
       "origin"       -> HumanFriendlyValueCandidate(authList.origin, _.map(originFromInt)),
       "rootOfTrust"  -> RawValue(convert(authList.rootOfTrust)),
       "osVersion"    -> RawValue(authList.osVersion),
@@ -192,5 +206,9 @@ private[output] class IntermediateModel(private val humanFriendlyFormat: Boolean
 
   private[this] def durationStringFromSeconds(seconds: Long): String = {
     Duration.ofSeconds(seconds).toString()
+  }
+
+  private[this] def instantStringFromMillis(millis: Long): String = {
+    Instant.ofEpochMilli(millis).toString
   }
 }
