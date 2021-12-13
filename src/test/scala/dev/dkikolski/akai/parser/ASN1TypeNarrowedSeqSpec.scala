@@ -137,7 +137,7 @@ class ASN1TypeNarrowedSeqSpec extends AnyFlatSpec with EitherValues with Matcher
       .left
       .value shouldBe OutOfSequenceRange(99, 0)
   }
-
+  
   private def createEmptyASN1TypeNarrowedSeq(): ASN1TypeNarrowedSeq =
     ASN1TypeNarrowedSeq(DERSequence(Array[ASN1Encodable]()))
 }

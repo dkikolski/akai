@@ -1,9 +1,10 @@
+package dev.dkikolski.akai
+
 import dev.dkikolski.akai.cli.CommandLineArgsParser
 import dev.dkikolski.akai.cli.Discard
 import dev.dkikolski.akai.cli.ParseCertificate
 import dev.dkikolski.akai.cli.ShowHelp
 import dev.dkikolski.akai.input.CertificateReader
-import dev.dkikolski.akai.output.JsonFormatter
 import dev.dkikolski.akai.output.KeyDescriptionFormatter
 import dev.dkikolski.akai.output.TableFormatter
 import dev.dkikolski.akai.parser.CertificateParser
@@ -59,7 +60,6 @@ def handleParsingCertificate(action: ParseCertificate): Unit = {
       println(
         KeyDescriptionFormatter.render(
           keyDescription,
-          action.outputFormat,
           action.outputValuesFormat
         )
       )

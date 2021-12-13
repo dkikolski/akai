@@ -58,7 +58,6 @@ class CommandLineArgsParserSpec extends AnyFlatSpec {
     val expectedParseCertificateOperation = ParseCertificate(
       location = Some(File(givenCertPath)),
       decodeBase64 = false,
-      outputFormat = OutputFormat.Table,
       outputValuesFormat = OutputValuesFormat.HumanFriendly
     )
 
@@ -74,7 +73,6 @@ class CommandLineArgsParserSpec extends AnyFlatSpec {
     val expectedParseCertificateOperation = ParseCertificate(
       location = None,
       decodeBase64 = false,
-      outputFormat = OutputFormat.Table,
       outputValuesFormat = OutputValuesFormat.HumanFriendly
     )
 
@@ -91,24 +89,6 @@ class CommandLineArgsParserSpec extends AnyFlatSpec {
     val expectedParseCertificateOperation = ParseCertificate(
       location = None,
       decodeBase64 = true,
-      outputFormat = OutputFormat.Table,
-      outputValuesFormat = OutputValuesFormat.HumanFriendly
-    )
-
-    // when
-    val actualParsedOperation = CommandLineArgsParser.parse(args)
-
-    // then
-    actualParsedOperation shouldBe expectedParseCertificateOperation
-  }
-
-  it should "return 'Parse Certificate' operation with JSON output option when '--out-json' is provided in args" in {
-    // given
-    val args = Seq("--out-json")
-    val expectedParseCertificateOperation = ParseCertificate(
-      location = None,
-      decodeBase64 = false,
-      outputFormat = OutputFormat.JSON,
       outputValuesFormat = OutputValuesFormat.HumanFriendly
     )
 
@@ -125,24 +105,6 @@ class CommandLineArgsParserSpec extends AnyFlatSpec {
     val expectedParseCertificateOperation = ParseCertificate(
       location = None,
       decodeBase64 = false,
-      outputFormat = OutputFormat.Table,
-      outputValuesFormat = OutputValuesFormat.Raw
-    )
-
-    // when
-    val actualParsedOperation = CommandLineArgsParser.parse(args)
-
-    // then
-    actualParsedOperation shouldBe expectedParseCertificateOperation
-  }
-
-  it should "return 'Parse Certificate' operation with JSON format and raw values output when proper args are provided" in {
-    // given
-    val args = Seq("--out-json", "--raw-values")
-    val expectedParseCertificateOperation = ParseCertificate(
-      location = None,
-      decodeBase64 = false,
-      outputFormat = OutputFormat.JSON,
       outputValuesFormat = OutputValuesFormat.Raw
     )
 

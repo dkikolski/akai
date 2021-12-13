@@ -1,6 +1,5 @@
 package dev.dkikolski.akai.parser
 
-import dev.dkikolski.akai.schema.AuthorizationList
 import dev.dkikolski.akai.schema._
 import org.bouncycastle.asn1.ASN1Encodable
 import org.bouncycastle.asn1.ASN1Primitive
@@ -8,7 +7,7 @@ import org.bouncycastle.asn1.ASN1Private
 import org.bouncycastle.asn1.ASN1Sequence
 
 object KeyDescriptionParser {
-  val VeryfiedBootKeyIndex   = 0
+  val VerifiedBootKeyIndex   = 0
   val DeviceLockedIndex      = 1
   val VerifiedBootStateIndex = 2
   val VerifiedBootHashIndex  = 3
@@ -22,6 +21,12 @@ object KeyDescriptionParser {
   val SoftwareEnforcedIndex     = 6
   val TeeEnforcedIndex          = 7
 
+  val AttestationApplicationIdPackageInfosIndex     = 0
+  val AttestationApplicationIdSignatureDigestsIndex = 1
+
+  val AttestationPackageInfoPackageNameIndex    = 0
+  val AttestationPackageInfoPackageVersionIndex = 1
+
   val PurposeTag                     = 1
   val AlgorithmTag                   = 2
   val KeySizeTag                     = 3
@@ -29,7 +34,7 @@ object KeyDescriptionParser {
   val PaddingTag                     = 6
   val EcCurveTag                     = 10
   val RsaPublicExponentTag           = 200
-  val RollbackResitanceTag           = 303
+  val RollbackResistanceTag          = 303
   val ActiveDateTimeTag              = 400
   val OriginationExpireDateTimeTag   = 401
   val UsageExpireDateTimeTag         = 402
@@ -109,10 +114,10 @@ object KeyDescriptionParser {
       applicationId             <- taggedValues.getBytesOrEmptyAt(ApplicationIdTag)
       creationDateTime          <- taggedValues.getOptionalLongAt(CreationDateTimeTag)
       origin                    <- taggedValues.getOptionalIntAt(OriginTag)
-      rootOfTrust               <- parseToRootOfTrustFrom(taggedValues)
+      rootOfTrust               <- parseToRootOfTrust(taggedValues)
       osVersion                 <- taggedValues.getOptionalIntAt(OsVersionTag)
       osPatchLevel              <- taggedValues.getOptionalIntAt(OsPatchLevelTag)
-      attestationApplicationId  <- taggedValues.getBytesOrEmptyAt(AttestationApplicationIdTag)
+      attestationApplicationId  <- parseToAttestationApplicationId(taggedValues)
       attestationIdBrand        <- taggedValues.getBytesOrEmptyAt(AttestationIdBrandTag)
       attestationIdDevice       <- taggedValues.getBytesOrEmptyAt(AttestationIdDeviceTag)
       attestationIdProduct      <- taggedValues.getBytesOrEmptyAt(AttestationIdProductTag)
@@ -124,8 +129,8 @@ object KeyDescriptionParser {
       vendorPatchLevel          <- taggedValues.getOptionalIntAt(VendorPatchLevelTag)
       bootPatchLevel            <- taggedValues.getOptionalIntAt(BootPatchLevelTag)
 
-      rollbackResistance          = taggedValues.getBooleanAt(RollbackResitanceTag)
-      noAuthRiquired              = taggedValues.getBooleanAt(NoAuthRequiredTag)
+      rollbackResistance          = taggedValues.getBooleanAt(RollbackResistanceTag)
+      noAuthRequired              = taggedValues.getBooleanAt(NoAuthRequiredTag)
       allowWhileOnBody            = taggedValues.getBooleanAt(AllowWhileOnBodyTag)
       trustedUserPresenceRequired = taggedValues.getBooleanAt(TrustedUserPresenceRequiredTag)
       trustedConfirmationRequired = taggedValues.getBooleanAt(TrustedConfirmationRequiredTag)
@@ -165,7 +170,7 @@ object KeyDescriptionParser {
         vendorPatchLevel = vendorPatchLevel,
         bootPatchLevel = bootPatchLevel,
         rollbackResistance = rollbackResistance,
-        noAuthRequired = noAuthRiquired,
+        noAuthRequired = noAuthRequired,
         allowWhileOnBody = allowWhileOnBody,
         trustedUserPresenceRequired = trustedUserPresenceRequired,
         trustedConfirmationRequired = trustedConfirmationRequired,
@@ -175,7 +180,7 @@ object KeyDescriptionParser {
     } yield authList
   }
 
-  private def parseToRootOfTrustFrom(
+  private def parseToRootOfTrust(
       taggedValues: ASN1TypeNarrowedTaggedObjects
   ): Either[ParsingFailure, Option[RootOfTrust]] =
     taggedValues
@@ -185,17 +190,54 @@ object KeyDescriptionParser {
           .getOrElse(Right(None))
       )
 
+  private def parseToAttestationApplicationId(
+      taggedValues: ASN1TypeNarrowedTaggedObjects
+  ): Either[ParsingFailure, Option[AttestationApplicationId]] = {
+    taggedValues
+      .getOptionalASN1SeqAt(AttestationApplicationIdTag)
+      .map(_.map(seq => {
+        for {
+          packageInfos <- seq
+            .getOptionalTypeNarrowedSequencesAt(AttestationApplicationIdPackageInfosIndex)
+            .flatMap(parseToAttestationPackageInfo)
+          digests <- seq.getOptionalBytesSeqenceAt(AttestationApplicationIdSignatureDigestsIndex)
+        } yield AttestationApplicationId(packageInfos, digests)
+      })) match {
+      case Left(failure)              => Left(failure)
+      case Right(None)                => Right(None)
+      case Right(Some(Left(failure))) => Left(failure)
+      case Right(Some(Right(appId)))  => Right(Some(appId))
+    }
+  }
+
+  private def parseToAttestationPackageInfo(
+      sequences: Set[ASN1TypeNarrowedSeq]
+  ): Either[ParsingFailure, Set[AttestationPackageInfo]] = {
+    sequences
+      .map(seq => {
+        for {
+          name    <- seq.getStringAt(AttestationPackageInfoPackageNameIndex)
+          version <- seq.getLongAt(AttestationPackageInfoPackageVersionIndex)
+        } yield  AttestationPackageInfo(name, version)
+      })
+      .foldRight(Right(Set.empty): Either[ParsingFailure, Set[AttestationPackageInfo]])(
+        (err, acc) => {
+          for (xs <- acc; x <- err) yield xs + x
+        }
+      )
+  }
+
   private def parseRootOfTrust(
       seq: ASN1TypeNarrowedSeq
   ): Either[ParsingFailure, Option[RootOfTrust]] = {
     for {
-      veryfiedBootKey <- seq.getBytesAt(VeryfiedBootKeyIndex)
+      verifiedBootKey <- seq.getBytesAt(VerifiedBootKeyIndex)
       deviceLocked    <- seq.getBooleanAt(DeviceLockedIndex)
       verifiedBootState <- seq
         .getIntAt(VerifiedBootStateIndex)
         .flatMap(parseVerifiedBootState)
       verifiedBootHash <- seq.getBytesOrEmptyAt(VerifiedBootHashIndex)
-    } yield Some(RootOfTrust(veryfiedBootKey, deviceLocked, verifiedBootState, verifiedBootHash))
+    } yield Some(RootOfTrust(verifiedBootKey, deviceLocked, verifiedBootState, verifiedBootHash))
   }
 
   private def parseVerifiedBootState(candidate: Int): Either[ParsingFailure, VerifiedBootState] =

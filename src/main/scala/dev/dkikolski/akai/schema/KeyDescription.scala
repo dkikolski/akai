@@ -1,14 +1,14 @@
 package dev.dkikolski.akai.schema
 
 final case class KeyDescription(
-    val attestationVersion: Int,
-    val attestationSecurityLevel: SecurityLevel,
-    val keymasterVersion: Int,
-    val keymasterSecurityLevel: SecurityLevel,
-    val attestationChallenge: Array[Byte],
-    val uniqueId: Array[Byte],
-    val softwareEnforced: AuthorizationList, 
-    val teeEnforced: AuthorizationList
+    attestationVersion: Int,
+    attestationSecurityLevel: SecurityLevel,
+    keymasterVersion: Int,
+    keymasterSecurityLevel: SecurityLevel,
+    attestationChallenge: Array[Byte],
+    uniqueId: Array[Byte],
+    softwareEnforced: AuthorizationList,
+    teeEnforced: AuthorizationList
 )
 
 enum SecurityLevel(val intValue: Int) {

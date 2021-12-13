@@ -1,25 +1,17 @@
 package dev.dkikolski.akai.output
-import dev.dkikolski.akai.schema.KeyDescription
-import dev.dkikolski.akai.cli.OutputFormat
-import dev.dkikolski.akai.schema.KeyDescription
 import dev.dkikolski.akai.cli.OutputValuesFormat
+import dev.dkikolski.akai.schema.KeyDescription
 
 private[output] trait KeyDescriptionFormatter {
-  def render(keyDescription: KeyDescription, humanFriendlyFormat: Boolean): String
+  def render(keyDescription: KeyDescription): String
 }
 
 object KeyDescriptionFormatter {
 
-  private val formatters: Map[OutputFormat, KeyDescriptionFormatter] = Map(
-    OutputFormat.JSON  -> JsonFormatter,
-    OutputFormat.Table -> TableFormatter
-  )
-
   def render(
       keyDescription: KeyDescription,
-      format: OutputFormat,
       valuesFormat: OutputValuesFormat
   ): String =
-    formatters(format).render(keyDescription, valuesFormat == OutputValuesFormat.HumanFriendly)
+    TableFormatter(valuesFormat == OutputValuesFormat.HumanFriendly).render(keyDescription)
 
 }

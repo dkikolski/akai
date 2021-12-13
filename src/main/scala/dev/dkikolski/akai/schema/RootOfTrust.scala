@@ -1,10 +1,10 @@
 package dev.dkikolski.akai.schema
 
 final case class RootOfTrust(
-    val verifiedBootKey: Array[Byte],
-    val deviceLocked: Boolean,
-    val verifiedBootState: VerifiedBootState,
-    val verifiedBootHash: Array[Byte]
+    verifiedBootKey: Array[Byte],
+    deviceLocked: Boolean,
+    verifiedBootState: VerifiedBootState,
+    verifiedBootHash: Array[Byte]
 )
 
 enum VerifiedBootState(val intValue: Int) {

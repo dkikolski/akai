@@ -1,12 +1,14 @@
 package dev.dkikolski.akai.parser
 
-import org.bouncycastle.asn1.ASN1Encodable
-import org.bouncycastle.asn1.ASN1Primitive
-import org.bouncycastle.asn1.ASN1Sequence
-import org.bouncycastle.asn1.ASN1Set
-import org.bouncycastle.asn1.ASN1TaggedObject
-
-import ASN1Conversions._
+import org.bouncycastle.asn1.{
+  ASN1Encodable,
+  ASN1Primitive,
+  ASN1Sequence,
+  ASN1Set,
+  ASN1TaggedObject,
+  DEROctetString
+}
+import ASN1Conversions.*
 
 private[parser] final class ASN1TypeNarrowedTaggedObjects(
     private val taggedValues: Map[Int, ASN1Primitive]
@@ -29,7 +31,7 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(
       .map(convertToLong(_).map(Some(_)))
       .getOrElse(Right(None))
 
-  def getBooleanAt(tag: Int): Boolean = taggedValues.get(tag).isDefined
+  def getBooleanAt(tag: Int): Boolean = taggedValues.contains(tag)
 
   def getBytesOrEmptyAt(tag: Int): Either[ParsingFailure, Array[Byte]] =
     taggedValues
@@ -50,7 +52,13 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(
   ): Either[ParsingFailure, ASN1TypeNarrowedSeq] = {
     primitive match {
       case seq: ASN1Sequence => Right(ASN1TypeNarrowedSeq(seq))
-      case other             => Left(TypeMismatch(other, "ASN1Sequence"))
+      case octetString: DEROctetString =>
+        Right(
+          ASN1TypeNarrowedSeq(
+            ASN1Primitive.fromByteArray(octetString.getOctets).asInstanceOf[ASN1Sequence]
+          )
+        )
+      case other => Left(TypeMismatch(other, "ASN1Sequence"))
     }
   }
 

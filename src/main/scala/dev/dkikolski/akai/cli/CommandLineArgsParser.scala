@@ -1,10 +1,10 @@
 package dev.dkikolski.akai.cli
 
+import java.io.File
 import scala.annotation.tailrec
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
-import java.io.File
 
 object CommandLineArgsParser {
   private val HelpText =
@@ -14,10 +14,6 @@ object CommandLineArgsParser {
       |Options
       |  --decode-base64           decode the input using Base64 decoding scheme 
       |                            before parsing as a X509 certificate 
-      |
-      |  --out-json             format output as a JSON object
-      |
-      |  --out-table            format output as a table (default option)
       |
       |  --raw-values              do not translate schema values to human 
       |                            friendly format e.g. octet strings will 
@@ -34,8 +30,6 @@ object CommandLineArgsParser {
 
   private val ShowHelpOption            = "--help"
   private val Base64DecodeOption        = "--decode-base64"
-  private val JsonFormatOption          = "--out-json"
-  private val TableFormatOption         = "--out-table"
   private val RawValuesOption           = "--raw-values"
   private val HumanFriendlyValuesOption = "--human-friendly-values"
 
@@ -43,8 +37,6 @@ object CommandLineArgsParser {
     Set(
       ShowHelpOption,
       Base64DecodeOption,
-      JsonFormatOption,
-      TableFormatOption,
       RawValuesOption,
       HumanFriendlyValuesOption
     )
@@ -67,7 +59,6 @@ object CommandLineArgsParser {
       ParseCertificate(
         location = locations.headOption.map(File(_)),
         decodeBase64 = options.contains(Base64DecodeOption),
-        outputFormat = resolveOutputFormat(options),
         outputValuesFormat = resolveValuesFormat(options)
       )
   }
@@ -84,12 +75,6 @@ object CommandLineArgsParser {
         parseRec(tail, options :+ option, locations)
       case location :: tail => parseRec(tail, options, locations :+ location)
     }
-  }
-
-  private[this] def resolveOutputFormat(options: List[String]): OutputFormat = {
-    if (options.indexOf(JsonFormatOption) > options.indexOf(TableFormatOption))
-      OutputFormat.JSON
-    else OutputFormat.Table
   }
 
   private[this] def resolveValuesFormat(options: List[String]): OutputValuesFormat = {
