@@ -67,10 +67,6 @@ Options
   --decode-base64           decode the input using Base64 decoding scheme 
                             before parsing as a X509 certificate 
 
-  --json-format             format output as a JSON object
-
-  --table-format            format output as a table (default option)
-
   --raw-values              do not translate schema values to human 
                             friendly format e.g. octet strings will 
                             be printed in hex format instead of 
