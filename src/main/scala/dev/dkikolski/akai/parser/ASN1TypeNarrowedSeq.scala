@@ -30,44 +30,6 @@ private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
       .flatMap(convertToASN1Sequence)
       .map(ASN1TypeNarrowedTaggedObjects(_))
 
-  def getOptionalTypeNarrowedSequencesAt(
-      index: Int
-  ): Either[ParsingFailure, Set[ASN1TypeNarrowedSeq]] = {
-    getAt(index) match {
-      case Left(outOfRangeFailure) => Right(Set.empty)
-      case Right(encodable) =>
-        convertToASN1Set(encodable)
-          .flatMap(asn1Set =>
-            asn1Set.toArray.toSet
-              .map(convertToASN1Sequence)
-              .foldRight(Right(Set.empty): Either[ParsingFailure, Set[ASN1Sequence]])((e, acc) => {
-                for (xs <- acc; x <- e) yield xs + x
-              })
-              .map(asn1Sequences => asn1Sequences.map(ASN1TypeNarrowedSeq(_)))
-          )
-    }
-  }
-
-  def getOptionalBytesSeqenceAt(
-      index: Int
-  ): Either[ParsingFailure, Set[Array[Byte]]] = {
-    getAt(index) match {
-      case Left(failure) => Right(Set.empty)
-      case Right(encodable) =>
-        convertToASN1Set(encodable)
-          .flatMap(
-            _.toArray.toSet
-              .map(convertToASN1OctetString)
-              .foldRight(Right(Set.empty): Either[ParsingFailure, Set[ASN1OctetString]])(
-                (e, acc) => {
-                  for (xs <- acc; x <- e) yield xs + x
-                }
-              )
-          )
-          .map(_.map(_.getOctets))
-    }
-  }
-
   def getBytesAt(index: Int): Either[ParsingFailure, Array[Byte]] =
     getAt(index)
       .flatMap(convertToASN1OctetString)
@@ -76,6 +38,46 @@ private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
   def getBytesOrEmptyAt(index: Int): Either[ParsingFailure, Array[Byte]] =
     if (seq.size() <= index) Right(Array.emptyByteArray)
     else getBytesAt(index)
+
+  def getOptionalTypeNarrowedSequencesAt(
+      index: Int
+  ): Either[ParsingFailure, Set[ASN1TypeNarrowedSeq]] = {
+    getAt(index) match {
+      case Left(outOfRangeFailure) => Right(Set.empty)
+      case Right(encodable)        => convertToASN1Set(encodable).flatMap(convertToSequencesSet)
+    }
+  }
+
+  private[this] def convertToSequencesSet(
+      asn1Set: ASN1Set
+  ): Either[ParsingFailure, Set[ASN1TypeNarrowedSeq]] = {
+    asn1Set.toArray.toSet
+      .map(convertToASN1Sequence)
+      .map(_.map(ASN1TypeNarrowedSeq(_)))
+      .foldRight(Right(Set.empty): Either[ParsingFailure, Set[ASN1TypeNarrowedSeq]])((e, acc) => {
+        for (xs <- acc; x <- e) yield xs + x
+      })
+  }
+
+  def getOptionalBytesSeqenceAt(
+      index: Int
+  ): Either[ParsingFailure, Set[Array[Byte]]] = {
+    getAt(index) match {
+      case Left(failure)    => Right(Set.empty)
+      case Right(encodable) => convertToASN1Set(encodable).flatMap(convertToByteArraysSets)
+    }
+  }
+
+  private[this] def convertToByteArraysSets(
+      asn1Set: ASN1Set
+  ): Either[ParsingFailure, Set[Array[Byte]]] = {
+    asn1Set.toArray.toSet
+      .map(convertToASN1OctetString)
+      .map(_.map(_.getOctets))
+      .foldRight(Right(Set.empty): Either[ParsingFailure, Set[Array[Byte]]])((e, acc) => {
+        for (xs <- acc; x <- e) yield xs + x
+      })
+  }
 
   private[this] def convertToASN1Sequence(
       encodable: ASN1Encodable

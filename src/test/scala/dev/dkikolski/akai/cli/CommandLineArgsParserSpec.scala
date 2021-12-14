@@ -9,14 +9,11 @@ import java.io.File
 class CommandLineArgsParserSpec extends AnyFlatSpec {
 
   "Parser" should "return 'Discard' operation when flag is not recognized" in {
-    //given
     val usnupportedFlag          = "--test"
     val expectedDiscardOperation = Discard(s"Unsupported option(s): ${usnupportedFlag}")
 
-    // when
     val actualParsedOperation = CommandLineArgsParser.parse(Seq(usnupportedFlag))
 
-    // then
     actualParsedOperation shouldBe expectedDiscardOperation
   }
 
@@ -39,21 +36,17 @@ class CommandLineArgsParserSpec extends AnyFlatSpec {
   }
 
   it should "return 'Discard' operation when too many file locations are passed" in {
-    // given
     val givenPaths = Seq("/dev/test/cert0.pem", "/dev/test/cert1.pem")
     val expectedDiscardOperation = Discard(
       s"Only single file/directory path is supported. Too many locations: ${givenPaths.mkString(", ")}"
     )
 
-    // when
     val actualParsedOperation = CommandLineArgsParser.parse(givenPaths)
 
-    // then
     actualParsedOperation shouldBe expectedDiscardOperation
   }
 
   it should "return 'Parse Ceftificate' operation when certificate location is provided without additional parameters" in {
-    // given
     val givenCertPath = "/dev/test/cert0.pem"
     val expectedParseCertificateOperation = ParseCertificate(
       location = Some(File(givenCertPath)),
@@ -61,30 +54,24 @@ class CommandLineArgsParserSpec extends AnyFlatSpec {
       outputValuesFormat = OutputValuesFormat.HumanFriendly
     )
 
-    // when
     val actualParsedOperation = CommandLineArgsParser.parse(Seq(givenCertPath))
 
-    // then
     actualParsedOperation shouldBe expectedParseCertificateOperation
   }
 
   it should "return 'Parse Certificate' operation when location is not provided and additional parameters are empty" in {
-    // given
     val expectedParseCertificateOperation = ParseCertificate(
       location = None,
       decodeBase64 = false,
       outputValuesFormat = OutputValuesFormat.HumanFriendly
     )
 
-    // when
     val actualParsedOperation = CommandLineArgsParser.parse(Seq())
 
-    // then
     actualParsedOperation shouldBe expectedParseCertificateOperation
   }
 
   it should "return 'Parse Certificate' operation with 'decodeBase64' option when '--decode-base64' is provided in args" in {
-    // given
     val args = Seq("--decode-base64")
     val expectedParseCertificateOperation = ParseCertificate(
       location = None,
@@ -92,15 +79,12 @@ class CommandLineArgsParserSpec extends AnyFlatSpec {
       outputValuesFormat = OutputValuesFormat.HumanFriendly
     )
 
-    // when
     val actualParsedOperation = CommandLineArgsParser.parse(args)
 
-    // then
     actualParsedOperation shouldBe expectedParseCertificateOperation
   }
 
   it should "return 'Parse Certificate' operation with raw values in output when '--raw-values' is provided in args" in {
-    // given
     val args = Seq("--raw-values")
     val expectedParseCertificateOperation = ParseCertificate(
       location = None,
@@ -108,10 +92,8 @@ class CommandLineArgsParserSpec extends AnyFlatSpec {
       outputValuesFormat = OutputValuesFormat.Raw
     )
 
-    // when
     val actualParsedOperation = CommandLineArgsParser.parse(args)
 
-    // then
     actualParsedOperation shouldBe expectedParseCertificateOperation
   }
 }

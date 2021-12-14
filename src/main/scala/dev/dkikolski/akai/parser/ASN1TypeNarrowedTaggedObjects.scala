@@ -1,13 +1,12 @@
 package dev.dkikolski.akai.parser
 
-import org.bouncycastle.asn1.{
-  ASN1Encodable,
-  ASN1Primitive,
-  ASN1Sequence,
-  ASN1Set,
-  ASN1TaggedObject,
-  DEROctetString
-}
+import org.bouncycastle.asn1.ASN1Encodable
+import org.bouncycastle.asn1.ASN1Primitive
+import org.bouncycastle.asn1.ASN1Sequence
+import org.bouncycastle.asn1.ASN1Set
+import org.bouncycastle.asn1.ASN1TaggedObject
+import org.bouncycastle.asn1.DEROctetString
+
 import ASN1Conversions.*
 
 private[parser] final class ASN1TypeNarrowedTaggedObjects(

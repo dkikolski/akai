@@ -1,12 +1,12 @@
 package dev.dkikolski.akai.parser
 
-import org.bouncycastle.asn1.ASN1Encodable
-import org.bouncycastle.asn1.ASN1Integer
-import org.bouncycastle.asn1.ASN1Enumerated
 import org.bouncycastle.asn1.ASN1Boolean
+import org.bouncycastle.asn1.ASN1Encodable
+import org.bouncycastle.asn1.ASN1Enumerated
+import org.bouncycastle.asn1.ASN1Integer
 import org.bouncycastle.asn1.ASN1OctetString
-import org.bouncycastle.asn1.ASN1Private
 import org.bouncycastle.asn1.ASN1Primitive
+import org.bouncycastle.asn1.ASN1Private
 
 private[parser] object ASN1Conversions {
 

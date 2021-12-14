@@ -218,7 +218,7 @@ object KeyDescriptionParser {
         for {
           name    <- seq.getStringAt(AttestationPackageInfoPackageNameIndex)
           version <- seq.getLongAt(AttestationPackageInfoPackageVersionIndex)
-        } yield  AttestationPackageInfo(name, version)
+        } yield AttestationPackageInfo(name, version)
       })
       .foldRight(Right(Set.empty): Either[ParsingFailure, Set[AttestationPackageInfo]])(
         (err, acc) => {

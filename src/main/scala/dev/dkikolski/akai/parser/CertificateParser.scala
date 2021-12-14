@@ -3,6 +3,7 @@ package dev.dkikolski.akai.parser
 import org.bouncycastle.asn1.ASN1InputStream
 import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
+import org.bouncycastle.util.encoders.Base64
 
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -14,10 +15,6 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 import scala.util.Using
-import org.bouncycastle.util.encoders.Base64
-
-
-
 
 object CertificateParser {
   private val KeyDescriptionObjectId = "1.3.6.1.4.1.11129.2.1.17"
@@ -54,7 +51,7 @@ object CertificateParser {
   }
 
   def decodeBase64(bytes: Array[Byte]): Either[ParsingFailure, Array[Byte]] = {
-    Try { 
+    Try {
       Base64.decode(new String(bytes).replace("\\n", ""))
     } match {
       case Success(decodedBytes) => Right(decodedBytes)

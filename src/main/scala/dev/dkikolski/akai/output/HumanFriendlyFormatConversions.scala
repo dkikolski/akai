@@ -1,16 +1,13 @@
-package dev.dkikolski.akai
+package dev.dkikolski.akai.output
 
 import java.time.Duration
 import java.time.Instant
 
-package object output {
+private[output] object HumanFriendlyFormatConversions {
   private val UInt32MaxValue: Long = (Int.MaxValue.toLong << 1) + 1
 
   def bytesToHex(bytes: Array[Byte]): Array[String] =
     bytes.map(String.format("%02x", _))
-
-  def bytesToPrintableCharString(bytes: Array[Byte]): String = 
-    bytes.map(b => if (b >= 32) b.toChar else '.').mkString("")
 
   def unmatched(i: Int) = s"($i)???"
 

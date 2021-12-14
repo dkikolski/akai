@@ -5,10 +5,10 @@ import dev.dkikolski.akai.schema.AuthorizationList
 import dev.dkikolski.akai.schema.KeyDescription
 import dev.dkikolski.akai.schema.RootOfTrust
 
-import java.awt.RenderingHints.Key
 import scala.annotation.tailrec
-import scala.collection.immutable.TreeMap
 import dev.dkikolski.akai.schema.AttestationPackageInfo
+
+import HumanFriendlyFormatConversions.*
 
 private[output] class TableFormatter(
     val printInHumanFriendlyFormat: Boolean
@@ -70,7 +70,7 @@ private[output] class TableFormatter(
     Seq(
       (
         "Purpose",
-        humanFriendyConversion(soft.purpose, purposeFromInt),
+        humanFriendyConversion(soft.purpose, HumanFriendlyFormatConversions.purposeFromInt),
         humanFriendyConversion(tee.purpose, purposeFromInt)
       ),
       (
@@ -181,11 +181,12 @@ private[output] class TableFormatter(
       soft: Option[AttestationApplicationId],
       tee: Option[AttestationApplicationId]
   ): Seq[TableRecord] = {
-    val packageInfoToString: AttestationPackageInfo => String = info => s"('${info.packageName}': ${info.version})"  
+    val packageInfoToString: AttestationPackageInfo => String = info =>
+      s"('${info.packageName}': ${info.version})"
     val softPackageInfos = soft.map(_.packageInfos).map(_.map(packageInfoToString))
-    val teePackageInfos = tee.map(_.packageInfos).map(_.map(packageInfoToString))
-    val softDigests = soft.map(_.signatureDigest)
-    val teeDigests  = tee.map(_.signatureDigest)
+    val teePackageInfos  = tee.map(_.packageInfos).map(_.map(packageInfoToString))
+    val softDigests      = soft.map(_.signatureDigest)
+    val teeDigests       = tee.map(_.signatureDigest)
 
     Seq(
       ("Package Infos (name: version)", softPackageInfos, teePackageInfos),
