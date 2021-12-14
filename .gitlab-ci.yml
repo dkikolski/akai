@@ -1,4 +1,4 @@
-image: "hseeberger/scala-sbt:11.0.13_1.5.5_3.1.0"
+image: "hseeberger/scala-sbt:graalvm-ce-21.3.0-java11_1.5.6_3.1.0"
 
 stages:
   - test
@@ -10,11 +10,23 @@ unit-tests:
   script:
     - sbt test
 
-uber-jar:
+jvm-jar:
   stage: assembly
   script:
     - sbt assembly
   artifacts:
-    paths: 
+    name: "akai-jar"
+    paths:
       - target/scala-3.1.0/akai.jar
-    expire_in: 1 week 
+    expire_in: 1 week
+
+graalvm-native-image:
+  stage: assembly
+  script:
+    - gu install native-image
+    - sbt graalvm-native-image:packageBin
+  artifacts:
+    name: "akai-native-image"
+    paths:
+      - target/graalvm-native-image/akai
+    expire_in: 1 week
