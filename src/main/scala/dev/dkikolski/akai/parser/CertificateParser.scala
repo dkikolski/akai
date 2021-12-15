@@ -52,7 +52,8 @@ object CertificateParser {
 
   def decodeBase64(bytes: Array[Byte]): Either[ParsingFailure, Array[Byte]] = {
     Try {
-      Base64.decode(new String(bytes).replace("\\n", ""))
+      val regex = "\\s|\\\\n|[\\\"]".r
+      Base64.decode(regex.replaceAllIn(String(bytes), ""))
     } match {
       case Success(decodedBytes) => Right(decodedBytes)
       case Failure(exception) =>

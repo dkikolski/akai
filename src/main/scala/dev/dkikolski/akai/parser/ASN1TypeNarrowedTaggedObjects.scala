@@ -17,18 +17,21 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(
       .get(tag)
       .map(parseToIntSet)
       .getOrElse(Right(Set.empty))
+      .left.map(addContextToFailure(_, tag))
 
   def getOptionalIntAt(tag: Int): Either[ParsingFailure, Option[Int]] =
     taggedValues
       .get(tag)
       .map(convertToInt(_).map(Some(_)))
       .getOrElse(Right(None))
+      .left.map(addContextToFailure(_, tag))
 
   def getOptionalLongAt(tag: Int): Either[ParsingFailure, Option[Long]] =
     taggedValues
       .get(tag)
       .map(convertToLong(_).map(Some(_)))
       .getOrElse(Right(None))
+      .left.map(addContextToFailure(_, tag))
 
   def getBooleanAt(tag: Int): Boolean = taggedValues.contains(tag)
 
@@ -37,6 +40,7 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(
       .get(tag)
       .map(convertToBytes)
       .getOrElse(Right(Array.emptyByteArray))
+      .left.map(addContextToFailure(_, tag))
 
   def getOptionalASN1SeqAt(
       tag: Int
@@ -45,6 +49,7 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(
       .get(tag)
       .map(parseAsASN1TypeNarrowedSeq(_).map(Some(_)))
       .getOrElse(Right(None))
+      .left.map(addContextToFailure(_, tag))
 
   private[this] def parseAsASN1TypeNarrowedSeq(
       primitive: ASN1Primitive
@@ -76,6 +81,11 @@ private[parser] final class ASN1TypeNarrowedTaggedObjects(
       .foldRight(Right(Set.empty): Either[ParsingFailure, Set[Int]])((e, acc) =>
         for (xs <- acc; x <- e) yield xs + x
       )
+
+  private[this] def addContextToFailure(f: ParsingFailure, tag: Int): ParsingFailure =
+    f.updateContextMessage(
+      s"Parsing tag: '$tag' in type narrowed tagged objects ${this.taggedValues}"
+   )
 }
 
 object ASN1TypeNarrowedTaggedObjects {

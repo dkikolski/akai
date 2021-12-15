@@ -6,7 +6,7 @@ final case class AuthorizationList(
     keySize: Option[Int],
     digest: Set[Int],
     padding: Set[Int],
-    ecCurve: Set[Int],
+    ecCurve: Option[Int],
     rsaPublicExponent: Option[Long],
     rollbackResistance: Boolean,
     activeDateTime: Option[Long],

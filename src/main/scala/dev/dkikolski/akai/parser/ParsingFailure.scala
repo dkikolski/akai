@@ -2,30 +2,58 @@ package dev.dkikolski.akai.parser
 
 sealed trait ParsingFailure() {
   def getReason(): String
+  
+  def getContextMessage(): String
+  
+  def updateContextMessage(msg: String): ParsingFailure
 }
 
-final case class CertificateParsingFailure(reason: String) extends ParsingFailure {
+final case class CertificateParsingFailure(reason: String, context: String = "") extends ParsingFailure {
   override def getReason(): String = reason
+
+  override def getContextMessage(): String = context
+
+  override def updateContextMessage(msg: String) =
+    CertificateParsingFailure(reason, s"$msg: $context")
 }
 
 final case class TypeMismatch(
     value: Any,
-    expectedType: String
+    expectedType: String,
+    context: String = ""
 ) extends ParsingFailure {
   override def getReason(): String =
     s"Cannot parse $value as a/an $expectedType"
+
+  override def getContextMessage(): String = context  
+
+  override def updateContextMessage(msg: String) =
+    TypeMismatch(value, expectedType, s"$msg: $context")
 }
 
 final case class OutOfSequenceRange(
     actual: Int,
-    len: Int
+    len: Int,
+    context: String = ""
 ) extends ParsingFailure {
   override def getReason(): String = s"Index $actual is out of sequence range (length: $len)"
+
+  override def getContextMessage(): String = context
+
+  override def updateContextMessage(msg: String) =
+    OutOfSequenceRange(actual, len, s"$msg: $context")
 }
 
 final case class UnmatchedEnumeration(
     actual: Int,
-    enumerationName: String
+    enumerationName: String,
+    context: String = ""
 ) extends ParsingFailure {
   override def getReason(): String = s"Value $actual cannot be mapped to ${enumerationName}"
+
+  override def getContextMessage(): String = context
+
+  override def updateContextMessage(msg: String) =
+    UnmatchedEnumeration(actual, enumerationName, s"$msg: $context")
+
 }

@@ -14,39 +14,56 @@ import ASN1Conversions.*
 private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
 
   def getBooleanAt(index: Int): Either[ParsingFailure, Boolean] =
-    getAt(index).flatMap(convertToBoolean)
+    getAt(index).flatMap(convertToBoolean).left.map(addContextToFailure(_, index))
 
   def getIntAt(index: Int): Either[ParsingFailure, Int] =
-    getAt(index).flatMap(convertToInt)
+    getAt(index).flatMap(convertToInt).left.map(addContextToFailure(_, index))
 
   def getLongAt(index: Int): Either[ParsingFailure, Long] =
-    getAt(index).map(_.toASN1Primitive).flatMap(convertToLong)
+    getAt(index)
+      .map(_.toASN1Primitive)
+      .flatMap(convertToLong)
+      .left
+      .map(addContextToFailure(_, index))
 
   def getStringAt(index: Int): Either[ParsingFailure, String] =
-    getAt(index).flatMap(convertToString)
+    getAt(index).flatMap(convertToString).left.map(addContextToFailure(_, index))
 
   def getTaggedObjectsAt(index: Int): Either[ParsingFailure, ASN1TypeNarrowedTaggedObjects] =
     getAt(index)
       .flatMap(convertToASN1Sequence)
       .map(ASN1TypeNarrowedTaggedObjects(_))
+      .left
+      .map(addContextToFailure(_, index))
 
   def getBytesAt(index: Int): Either[ParsingFailure, Array[Byte]] =
     getAt(index)
       .flatMap(convertToASN1OctetString)
       .map(_.getOctets)
+      .left
+      .map(addContextToFailure(_, index))
 
   def getBytesOrEmptyAt(index: Int): Either[ParsingFailure, Array[Byte]] =
     if (seq.size() <= index) Right(Array.emptyByteArray)
-    else getBytesAt(index)
+    else getBytesAt(index).left.map(addContextToFailure(_, index))
 
   def getOptionalTypeNarrowedSequencesAt(
       index: Int
   ): Either[ParsingFailure, Set[ASN1TypeNarrowedSeq]] = {
     getAt(index) match {
       case Left(outOfRangeFailure) => Right(Set.empty)
-      case Right(encodable)        => convertToASN1Set(encodable).flatMap(convertToSequencesSet)
+      case Right(encodable) =>
+        convertToASN1Set(encodable)
+          .flatMap(convertToSequencesSet)
+          .left
+          .map(addContextToFailure(_, index))
     }
   }
+
+  private[this] def addContextToFailure(f: ParsingFailure, index: Int): ParsingFailure =
+    f.updateContextMessage(
+      s"Parsing index: '$index' in type narrowed sequence ${bytesToHex(this.seq.getEncoded)}"
+    )
 
   private[this] def convertToSequencesSet(
       asn1Set: ASN1Set
@@ -64,7 +81,7 @@ private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
   ): Either[ParsingFailure, Set[Array[Byte]]] = {
     getAt(index) match {
       case Left(failure)    => Right(Set.empty)
-      case Right(encodable) => convertToASN1Set(encodable).flatMap(convertToByteArraysSets)
+      case Right(encodable) => convertToASN1Set(encodable).flatMap(convertToByteArraysSets).left.map(addContextToFailure(_, index))
     }
   }
 

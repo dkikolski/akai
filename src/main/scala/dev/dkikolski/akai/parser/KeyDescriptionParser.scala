@@ -104,7 +104,7 @@ object KeyDescriptionParser {
       keySize                   <- taggedValues.getOptionalIntAt(KeySizeTag)
       digests                   <- taggedValues.getIntSetOrEmptyAt(DigestTag)
       paddings                  <- taggedValues.getIntSetOrEmptyAt(PaddingTag)
-      ecCurves                  <- taggedValues.getIntSetOrEmptyAt(EcCurveTag)
+      ecCurves                  <- taggedValues.getOptionalIntAt(EcCurveTag)
       rsaPubExponent            <- taggedValues.getOptionalLongAt(RsaPublicExponentTag)
       activeDateTime            <- taggedValues.getOptionalLongAt(ActiveDateTimeTag)
       originationExpireDateTime <- taggedValues.getOptionalLongAt(OriginationExpireDateTimeTag)

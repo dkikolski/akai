@@ -63,7 +63,7 @@ def handleParsingCertificate(action: ParseCertificate): Unit = {
           action.outputValuesFormat
         )
       )
-    case Left(failure) => println(s"[ERROR] ${failure.getReason()}")
+    case Left(failure) => println(s"[ERROR] ${failure.getContextMessage()}: ${failure.getReason()}")
   }
 }
 
