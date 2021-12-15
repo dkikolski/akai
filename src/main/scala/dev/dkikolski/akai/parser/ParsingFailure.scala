@@ -27,8 +27,8 @@ final case class TypeMismatch(
 
   override def getContextMessage(): String = context  
 
-  override def updateContextMessage(msg: String) =
-    TypeMismatch(value, expectedType, s"$msg: $context")
+  override def updateContextMessage(update: String) =
+    TypeMismatch(value, expectedType, s"$update $context")
 }
 
 final case class OutOfSequenceRange(
@@ -40,8 +40,8 @@ final case class OutOfSequenceRange(
 
   override def getContextMessage(): String = context
 
-  override def updateContextMessage(msg: String) =
-    OutOfSequenceRange(actual, len, s"$msg: $context")
+  override def updateContextMessage(update: String) =
+    OutOfSequenceRange(actual, len, s"$update $context")
 }
 
 final case class UnmatchedEnumeration(
@@ -53,7 +53,7 @@ final case class UnmatchedEnumeration(
 
   override def getContextMessage(): String = context
 
-  override def updateContextMessage(msg: String) =
-    UnmatchedEnumeration(actual, enumerationName, s"$msg: $context")
+  override def updateContextMessage(update: String) =
+    UnmatchedEnumeration(actual, enumerationName, s"$update $context")
 
 }

@@ -26,7 +26,7 @@ class ASN1TypeNarrowedSeqSpec extends AnyFlatSpec with EitherValues with Matcher
     createEmptyASN1TypeNarrowedSeq()
       .getBooleanAt(99)
       .left
-      .value shouldBe OutOfSequenceRange(99, 0)
+      .value shouldBe OutOfSequenceRange(99, 0, "Parsing index: '99' in TypeNarrowedSequence HEX(3000) ")
   }
 
   "getIntAt" should "return Int if it is present at given index" in {
@@ -43,7 +43,7 @@ class ASN1TypeNarrowedSeqSpec extends AnyFlatSpec with EitherValues with Matcher
     createEmptyASN1TypeNarrowedSeq()
       .getIntAt(99)
       .left
-      .value shouldBe OutOfSequenceRange(99, 0)
+      .value shouldBe OutOfSequenceRange(99, 0, "Parsing index: '99' in TypeNarrowedSequence HEX(3000) ")
   }
 
   "getStringAt" should "return String if it is present at given index" in {
@@ -60,7 +60,7 @@ class ASN1TypeNarrowedSeqSpec extends AnyFlatSpec with EitherValues with Matcher
     createEmptyASN1TypeNarrowedSeq()
       .getStringAt(99)
       .left
-      .value shouldBe OutOfSequenceRange(99, 0)
+      .value shouldBe OutOfSequenceRange(99, 0, "Parsing index: '99' in TypeNarrowedSequence HEX(3000) ")
   }
 
   "getBytesAt" should "return Array[Byte] if it is present at given index" in {
@@ -77,7 +77,7 @@ class ASN1TypeNarrowedSeqSpec extends AnyFlatSpec with EitherValues with Matcher
     createEmptyASN1TypeNarrowedSeq()
       .getBytesAt(99)
       .left
-      .value shouldBe OutOfSequenceRange(99, 0)
+      .value shouldBe OutOfSequenceRange(99, 0, "Parsing index: '99' in TypeNarrowedSequence HEX(3000) ")
   }
 
   "getBytesOrEmptyAt" should "return Array[Byte] if it is present at given index" in {
@@ -128,14 +128,14 @@ class ASN1TypeNarrowedSeqSpec extends AnyFlatSpec with EitherValues with Matcher
     createEmptyASN1TypeNarrowedSeq()
       .getTaggedObjectsAt(99)
       .left
-      .value shouldBe OutOfSequenceRange(99, 0)
+      .value shouldBe OutOfSequenceRange(99, 0, "Parsing index: '99' in TypeNarrowedSequence HEX(3000) ")
   }
 
   it should "return OutOfSequenceRange failure when ASN1TypeNarrowedTaggedObjects is not present at given index" in {
     createEmptyASN1TypeNarrowedSeq()
       .getStringAt(99)
       .left
-      .value shouldBe OutOfSequenceRange(99, 0)
+      .value shouldBe OutOfSequenceRange(99, 0, "Parsing index: '99' in TypeNarrowedSequence HEX(3000) ")
   }
   
   private def createEmptyASN1TypeNarrowedSeq(): ASN1TypeNarrowedSeq =

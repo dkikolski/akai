@@ -60,10 +60,12 @@ private[parser] final class ASN1TypeNarrowedSeq(private val seq: ASN1Sequence) {
     }
   }
 
-  private[this] def addContextToFailure(f: ParsingFailure, index: Int): ParsingFailure =
+  private[this] def addContextToFailure(f: ParsingFailure, index: Int): ParsingFailure = {
+    val seqHex = seq.getEncoded.map(String.format("%02x", _)).mkString
     f.updateContextMessage(
-      s"Parsing index: '$index' in type narrowed sequence ${bytesToHex(this.seq.getEncoded)}"
+      s"Parsing index: '$index' in TypeNarrowedSequence HEX($seqHex)"
     )
+  }
 
   private[this] def convertToSequencesSet(
       asn1Set: ASN1Set
