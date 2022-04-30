@@ -5,8 +5,8 @@ import dev.dkikolski.akai.cli.Discard
 import dev.dkikolski.akai.cli.ParseCertificate
 import dev.dkikolski.akai.cli.ShowHelp
 import dev.dkikolski.akai.input.CertificateReader
-import dev.dkikolski.akai.output.KeyDescriptionFormatter
-import dev.dkikolski.akai.output.TableFormatter
+import dev.dkikolski.akai.output.KeyDescriptionRenderer
+import dev.dkikolski.akai.output.TableRenderer
 import dev.dkikolski.akai.parser.CertificateParser
 import dev.dkikolski.akai.parser.KeyDescriptionParser
 import dev.dkikolski.akai.parser.ParsingFailure
@@ -58,7 +58,7 @@ def handleParsingCertificate(action: ParseCertificate): Unit = {
   certificateParsingResult match {
     case Right(keyDescription) =>
       println(
-        KeyDescriptionFormatter.render(
+        KeyDescriptionRenderer.render(
           keyDescription,
           action.outputValuesFormat
         )

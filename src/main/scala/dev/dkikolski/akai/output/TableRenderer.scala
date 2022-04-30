@@ -8,16 +8,12 @@ import dev.dkikolski.akai.schema.RootOfTrust
 import scala.annotation.tailrec
 import dev.dkikolski.akai.schema.AttestationPackageInfo
 
-import HumanFriendlyFormatConversions.*
-
-private[output] class TableFormatter(
-    val printInHumanFriendlyFormat: Boolean
-) extends KeyDescriptionFormatter {
+private[output] object TableRenderer extends KeyDescriptionRenderer {
   private val ColumnWidth = 36
 
   private type TableRecord = (String, String, String)
 
-  def render(keyDescription: KeyDescription): String = {
+  def render(keyDescription: FormattableKeyDescription): String = {
     val generalInfoHeader = createTableHeader("Attestation info")
 
     val authListsHeader =
@@ -55,7 +51,7 @@ private[output] class TableFormatter(
       .mkString("\n")
   }
 
-  def buildGeneralInfoRecords(kd: KeyDescription): Seq[TableRecord] = {
+  def buildGeneralInfoRecords(kd: FormattableKeyDescription): Seq[TableRecord] = {
     Seq(
       ("Attestation version", kd.attestationVersion, ""),
       ("Attestation Security Level", kd.attestationSecurityLevel, ""),
@@ -63,65 +59,32 @@ private[output] class TableFormatter(
       ("Keymaster Security Level", kd.keymasterSecurityLevel, ""),
       ("Attestation Challenge", kd.attestationChallenge, ""),
       ("Unique Id", kd.uniqueId, "")
-    ).map((header, v1, v2) => (header, toStringValue(v1), toStringValue(v2)))
+    )
   }
 
-  def buildAuthListRecords(soft: AuthorizationList, tee: AuthorizationList): Seq[TableRecord] = {
+  def buildAuthListRecords(
+      soft: FormattableAuthorizationList,
+      tee: FormattableAuthorizationList
+  ): Seq[TableRecord] = {
     Seq(
-      (
-        "Purpose",
-        humanFriendyConversion(soft.purpose, HumanFriendlyFormatConversions.purposeFromInt),
-        humanFriendyConversion(tee.purpose, purposeFromInt)
-      ),
-      (
-        "Algorithm",
-        humanFriendyConversion(soft.algorithm, algorithmFromInt),
-        humanFriendyConversion(tee.algorithm, algorithmFromInt)
-      ),
+      ("Purpose", soft.purpose, tee.purpose),
+      ("Algorithm", soft.algorithm, tee.algorithm),
       ("Key Size", soft.keySize, tee.keySize),
-      (
-        "Digest",
-        humanFriendyConversion(soft.digest, digestFromInt),
-        humanFriendyConversion(tee.digest, digestFromInt)
-      ),
-      (
-        "Padding",
-        humanFriendyConversion(soft.padding, paddingFromInt),
-        humanFriendyConversion(tee.padding, paddingFromInt)
-      ),
-      (
-        "EC Curve",
-        humanFriendyConversion(soft.ecCurve, ecCurveFromInt),
-        humanFriendyConversion(tee.ecCurve, ecCurveFromInt)
-      ),
+      ("Digest", soft.digest, tee.digest),
+      ("Padding", soft.padding, tee.padding),
+      ("EC Curve", soft.ecCurve, tee.ecCurve),
       ("RSA Public Exponent", soft.rsaPublicExponent, tee.rsaPublicExponent),
       ("Rollback Resistance", soft.rollbackResistance, tee.rollbackResistance),
-      (
-        "Active DateTime",
-        humanFriendyConversion(soft.activeDateTime, instantStringFromMillis),
-        humanFriendyConversion(tee.activeDateTime, instantStringFromMillis)
-      ),
+      ("Active DateTime", soft.activeDateTime, tee.activeDateTime),
       (
         "Origination Expire DateTime",
-        humanFriendyConversion(soft.originationExpireDateTime, instantStringFromMillis),
-        humanFriendyConversion(tee.originationExpireDateTime, instantStringFromMillis)
+        soft.originationExpireDateTime,
+        tee.originationExpireDateTime
       ),
-      (
-        "Usage Expire DateTime",
-        humanFriendyConversion(soft.usageExpireDateTime, instantStringFromMillis),
-        humanFriendyConversion(tee.usageExpireDateTime, instantStringFromMillis)
-      ),
+      ("Usage Expire DateTime", soft.usageExpireDateTime, tee.usageExpireDateTime),
       ("NoAuth Required", soft.noAuthRequired, tee.noAuthRequired),
-      (
-        "User Auth Type",
-        humanFriendyUserAuthType(soft.userAuthType),
-        humanFriendyUserAuthType(tee.userAuthType)
-      ),
-      (
-        "Auth Timeout",
-        humanFriendyConversion(soft.authTimeout, durationStringFromSeconds),
-        humanFriendyConversion(tee.authTimeout, durationStringFromSeconds)
-      ),
+      ("User Auth Type", soft.userAuthType, tee.userAuthType),
+      ("Auth Timeout", soft.authTimeout, tee.authTimeout),
       ("Allow While On Body", soft.allowWhileOnBody, tee.allowWhileOnBody),
       (
         "Trusted User Presence Required",
@@ -136,16 +99,8 @@ private[output] class TableFormatter(
       ("Unlocked Device Required", soft.unlockedDeviceRequired, tee.unlockedDeviceRequired),
       ("All Applications", soft.allApplications, tee.allApplications),
       ("Application Id", soft.applicationId, tee.applicationId),
-      (
-        "Creation DateTime",
-        humanFriendyConversion(soft.creationDateTime, instantStringFromMillis),
-        humanFriendyConversion(tee.creationDateTime, instantStringFromMillis)
-      ),
-      (
-        "Origin",
-        humanFriendyConversion(soft.origin, originFromInt),
-        humanFriendyConversion(tee.origin, originFromInt)
-      ),
+      ("Creation DateTime", soft.creationDateTime, tee.creationDateTime),
+      ("Origin", soft.origin, tee.origin),
       ("OS Version", soft.osVersion, tee.osVersion),
       ("OS Patch Level", soft.osPatchLevel, tee.osPatchLevel),
       ("Attestation Id Brand", soft.attestationIdBrand, tee.attestationIdBrand),
@@ -162,57 +117,29 @@ private[output] class TableFormatter(
       ("Attestation ID Model", soft.attestationIdModel, tee.attestationIdModel),
       ("Vendor Patch Level", soft.vendorPatchLevel, tee.vendorPatchLevel),
       ("Boot Patch Level", soft.bootPatchLevel, tee.bootPatchLevel)
-    ).map((header, v1, v2) => (header, toStringValue(v1), toStringValue(v2)))
+    )
   }
 
   def buildRootOfTrustRecords(
-      soft: Option[RootOfTrust],
-      tee: Option[RootOfTrust]
+      soft: FormattableRootOfTrust,
+      tee: FormattableRootOfTrust
   ): Seq[TableRecord] = {
     Seq(
-      ("Verified Boot Key", soft.map(_.verifiedBootKey), tee.map(_.verifiedBootKey)),
-      ("Device Locked", soft.map(_.deviceLocked), tee.map(_.deviceLocked)),
-      ("Verified Boot State", soft.map(_.verifiedBootState), tee.map(_.verifiedBootState)),
-      ("Verified Boot Hash", soft.map(_.verifiedBootHash), tee.map(_.verifiedBootHash))
-    ).map((header, v1, v2) => (header, toStringValue(v1), toStringValue(v2)))
+      ("Verified Boot Key", soft.verifiedBootKey, tee.verifiedBootKey),
+      ("Device Locked", soft.deviceLocked, tee.deviceLocked),
+      ("Verified Boot State", soft.verifiedBootState, tee.verifiedBootState),
+      ("Verified Boot Hash", soft.verifiedBootHash, tee.verifiedBootHash)
+    )
   }
 
   def buildAttestationApplicationIdRecords(
-      soft: Option[AttestationApplicationId],
-      tee: Option[AttestationApplicationId]
+      soft: FormattableAttestationApplicationId,
+      tee: FormattableAttestationApplicationId
   ): Seq[TableRecord] = {
-    val packageInfoToString: AttestationPackageInfo => String = info =>
-      s"('${info.packageName}': ${info.version})"
-    val softPackageInfos = soft.map(_.packageInfos).map(_.map(packageInfoToString))
-    val teePackageInfos  = tee.map(_.packageInfos).map(_.map(packageInfoToString))
-    val softDigests      = soft.map(_.signatureDigest)
-    val teeDigests       = tee.map(_.signatureDigest)
-
     Seq(
-      ("Package Infos (name: version)", softPackageInfos, teePackageInfos),
-      ("Digests", softDigests, teeDigests)
-    ).map((header, v1, v2) => (header, toStringValue(v1), toStringValue(v2)))
-  }
-
-  private[this] def humanFriendyConversion[A <: Any](
-      values: Iterable[A],
-      conversion: A => String
-  ): Iterable[String] = {
-    if (printInHumanFriendlyFormat) values.map(conversion(_))
-    else values.map(toStringValue)
-  }
-
-  private[this] def humanFriendyUserAuthType[A <: Any](value: Option[Long]): Option[Any] = {
-    if (printInHumanFriendlyFormat) value.map(userAuthTypeFromLong)
-    else value
-  }
-
-  private[this] def toStringValue(value: Any): String = value match {
-    case None                    => ""
-    case Some(x)                 => toStringValue(x)
-    case bytes: Array[Byte]      => bytesToHex(bytes).mkString(" ")
-    case collection: Iterable[_] => collection.map(toStringValue).mkString(", ")
-    case other                   => other.toString
+      ("Package Infos (name: version)", soft.packageInfos, tee.packageInfos),
+      ("Digests", soft.signatureDigest, tee.signatureDigest)
+    )
   }
 
   private[this] def createTableHeader(
