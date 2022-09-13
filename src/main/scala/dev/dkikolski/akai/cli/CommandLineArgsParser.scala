@@ -8,7 +8,7 @@ import scala.util.Try
 
 object CommandLineArgsParser {
   private val HelpText =
-    """Usage: akai [OPTION]... [FILE]\n
+    """Usage: akai [OPTION]... [FILE]
       |With no FILE, read standard input.
       | 
       |Options

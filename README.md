@@ -60,7 +60,7 @@ Akai supports certificates in PEM and DER format.
 
 Usage:
 ```
-Usage: akai [OPTION]... [FILE]\n
+Usage: akai [OPTION]... [FILE]
 With no FILE, read standard input.
  
 Options
